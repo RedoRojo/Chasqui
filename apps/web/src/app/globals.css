@@ -1,0 +1,33 @@
+@import "tailwindcss";
+
+:root {
+  --bg-paper: #faf8f5;
+  --ink-primary: #141413;
+}
+
+body {
+  background-color: var(--bg-paper);
+  color: var(--ink-primary);
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+    "Helvetica Neue", Arial, sans-serif;
+  line-height: 1.5;
+}
+
+/* Modern Web Guidance: defer-rendering-heavy-content
+   Applied ONLY to off-screen below-the-fold cards to skip initial layout/paint work
+   while preserving estimated height to avoid layout shifts (CLS). */
+.deferred-card {
+  content-visibility: auto;
+  contain-intrinsic-size: auto none auto 220px;
+}
+
+/* Accessible focus outlines */
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+button:focus-visible,
+a:focus-visible,
+summary:focus-visible {
+  outline: 2px solid #b45309;
+  outline-offset: 2px;
+}
