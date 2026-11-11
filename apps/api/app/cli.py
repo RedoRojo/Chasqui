@@ -11,7 +11,7 @@ def cmd_scan(live: bool = True, max_per_source: int = 4) -> None:
     init_db()
     db = SessionLocal()
     try:
-        print(f"[Chasqui] Iniciando escaneo de fuentes bolivianas (live={live})...")
+        print(f"[Chasqui] Starting live scan across Bolivian news sources (live={live})...")
         run = run_daily_scan(
             db,
             trigger="cli",
@@ -19,11 +19,11 @@ def cmd_scan(live: bool = True, max_per_source: int = 4) -> None:
             max_per_source=max_per_source,
         )
         print(
-            f"[Chasqui] Escaneo finalizado ({run.status}): "
-            f"{run.sources_scanned} fuentes revisadas | "
-            f"+{run.new_articles} artículos nuevos | "
-            f"+{run.new_events} eventos creados | "
-            f"{run.updated_threads} hilos actualizados."
+            f"[Chasqui] Scan finished ({run.status}): "
+            f"{run.sources_scanned} sources scanned | "
+            f"+{run.new_articles} new articles | "
+            f"+{run.new_events} new events | "
+            f"{run.updated_threads} threads updated."
         )
     finally:
         db.close()
@@ -33,13 +33,13 @@ def cmd_seed() -> None:
     init_db()
     db = SessionLocal()
     try:
-        print("[Chasqui] Inicializando catálogo de fuentes, base histórica y escaneo en vivo...")
+        print("[Chasqui] Initializing source catalog, historical baseline, and live scan...")
         seed_database(db, run_live_after_seed=True)
         ov = get_overview(db)
         print(
-            f"[Chasqui] Listo: {ov.total_sources} fuentes | "
-            f"{ov.total_threads} hilos | {ov.total_events} eventos | "
-            f"{ov.total_articles} artículos."
+            f"[Chasqui] Ready: {ov.total_sources} sources | "
+            f"{ov.total_threads} threads | {ov.total_events} events | "
+            f"{ov.total_articles} articles."
         )
     finally:
         db.close()
@@ -58,18 +58,18 @@ def cmd_status() -> None:
             q=None,
             db=db,
         )
-        print("=== ESTADO ACTUAL DE CHASQUI ===")
-        print(f"Fuentes activas      : {ov.total_sources}")
-        print(f"Hilos en seguimiento : {ov.total_threads}")
-        print(f"Eventos cronológicos : {ov.total_events}")
-        print(f"Artículos archivados : {ov.total_articles}")
-        print(f"Eventos punto ciego  : {ov.blindspot_events_count}")
-        print(f"Cobertura no masiva  : {ov.alternative_coverage_share}%")
-        print("\n=== PRINCIPALES HILOS EN EVOLUCIÓN ===")
+        print("=== CHASQUI DATABASE STATUS ===")
+        print(f"Active sources      : {ov.total_sources}")
+        print(f"Tracked threads     : {ov.total_threads}")
+        print(f"Chronological events: {ov.total_events}")
+        print(f"Archived articles   : {ov.total_articles}")
+        print(f"Blindspot events    : {ov.blindspot_events_count}")
+        print(f"Non-mainstream share: {ov.alternative_coverage_share}%")
+        print("\n=== TOP EVOLVING STORY THREADS ===")
         for th in threads[:10]:
             print(
                 f" - [{th.primary_department} | {th.category}] {th.title[:70]} "
-                f"({th.events_count} hitos, {th.articles_count} notas)"
+                f"({th.events_count} milestones, {th.articles_count} articles)"
             )
     finally:
         db.close()
@@ -78,20 +78,20 @@ def cmd_status() -> None:
 def main() -> None:
     parser = argparse.ArgumentParser(
         prog="python -m app.cli",
-        description="CLI de gestión y escaneo diario de Chasqui",
+        description="Chasqui CLI for daily scanning and database management",
     )
     sub = parser.add_subparsers(dest="command", required=True)
 
-    scan_p = sub.add_parser("scan", help="Ejecutar escaneo en vivo de las fuentes bolivianas")
+    scan_p = sub.add_parser("scan", help="Run a live scan across all active Bolivian news sources")
     scan_p.add_argument(
         "--max-per-source",
         type=int,
         default=4,
-        help="Máximo de artículos nuevos por fuente en esta corrida (default: 4)",
+        help="Maximum new articles to ingest per source in this run (default: 4)",
     )
 
-    sub.add_parser("seed", help="Inicializar catálogo, semilla histórica y escaneo inicial")
-    sub.add_parser("status", help="Mostrar resumen actual de la base de datos de Chasqui")
+    sub.add_parser("seed", help="Initialize source catalog, historical baseline, and initial scan")
+    sub.add_parser("status", help="Display current database summary and top story threads")
 
     args = parser.parse_args()
     if args.command == "scan":

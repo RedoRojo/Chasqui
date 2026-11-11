@@ -5,9 +5,9 @@ import { usePathname } from "next/navigation";
 import { Radio, History, Compass, Newspaper } from "lucide-react";
 
 const NAV_ITEMS = [
-  { href: "/", label: "Radar y Evolución", icon: Compass },
-  { href: "/archivo", label: "Archivo Histórico", icon: History },
-  { href: "/fuentes", label: "Fuentes e Ingesta", icon: Newspaper },
+  { href: "/", label: "Radar & Evolution", icon: Compass },
+  { href: "/archive", label: "Historical Archive", icon: History },
+  { href: "/sources", label: "Sources & Ingestion", icon: Newspaper },
 ];
 
 export function Navbar() {
@@ -29,19 +29,21 @@ export function Navbar() {
                 CHASQUI
               </span>
               <span className="block text-[11px] font-medium tracking-wider text-stone-600 uppercase">
-                Observatorio y Memoria Informativa de Bolivia
+                Bolivian News Observatory & Longitudinal Memory
               </span>
             </div>
           </Link>
         </div>
 
-        <nav aria-label="Navegación principal">
+        <nav aria-label="Main navigation">
           <ul className="flex items-center gap-1.5 sm:gap-2">
             {NAV_ITEMS.map((item) => {
               const Icon = item.icon;
               const isActive =
                 item.href === "/"
-                  ? pathname === "/" || pathname.startsWith("/hilos")
+                  ? pathname === "/" ||
+                    pathname.startsWith("/threads") ||
+                    pathname.startsWith("/hilos")
                   : pathname.startsWith(item.href);
               return (
                 <li key={item.href}>

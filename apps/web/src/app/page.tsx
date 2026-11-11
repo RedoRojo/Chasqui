@@ -35,8 +35,8 @@ export default function HomePage() {
   const [overview, setOverview] = useState<DashboardOverview | null>(null);
   const [threads, setThreads] = useState<StoryThread[]>([]);
   const [events, setEvents] = useState<StoryEvent[]>([]);
-  const [department, setDepartment] = useState<string>("Todos");
-  const [category, setCategory] = useState<string>("Todas");
+  const [department, setDepartment] = useState<string>("All");
+  const [category, setCategory] = useState<string>("All");
   const [blindspotOnly, setBlindspotOnly] = useState<boolean>(false);
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [activeTab, setActiveTab] = useState<"threads" | "events">("threads");
@@ -83,11 +83,11 @@ export default function HomePage() {
     try {
       const result = await triggerDailyScrape(true);
       setScrapeMessage(
-        `Escaneo en vivo completado (${result.sources_scanned} fuentes bolivianas revisadas): +${result.new_articles} notas nuevas, +${result.new_events} eventos agregados a las líneas de tiempo.`
+        `Live scan completed (${result.sources_scanned} Bolivian sources scanned): +${result.new_articles} new articles, +${result.new_events} events linked to story timelines.`
       );
       await loadData();
     } catch {
-      setScrapeMessage("No se pudo completar el escaneo en este momento.");
+      setScrapeMessage("Could not complete the live scan at this moment.");
     } finally {
       setScraping(false);
     }
@@ -95,23 +95,23 @@ export default function HomePage() {
 
   return (
     <div className="space-y-8">
-      {/* Encabezado Principal e Indicadores del Día */}
+      {/* Main Hero & Daily Intelligence Indicators */}
       <section className="rounded-2xl border border-stone-200 bg-white p-6 shadow-xs">
         <div className="flex flex-col justify-between gap-4 lg:flex-row lg:items-center">
           <div className="max-w-3xl">
             <div className="inline-flex items-center gap-2 rounded-full bg-amber-100/90 px-3 py-1 text-xs font-semibold text-amber-950">
               <Sparkles className="h-3.5 w-3.5 text-amber-800" aria-hidden="true" />
-              <span>Centralización Nacional y Seguimiento de Problemáticas</span>
+              <span>National Centralization & Longitudinal Issue Tracking</span>
             </div>
             <h1 className="mt-2.5 text-2xl font-extrabold tracking-tight text-stone-900 sm:text-3xl">
-              Lo que sucede en Bolivia y cómo evoluciona en el tiempo
+              What is happening across Bolivia and how stories evolve over time
             </h1>
             <p className="mt-2 text-sm leading-relaxed text-stone-700">
-              Chasqui articula diariamente los reportes de{" "}
+              Chasqui aggregates daily dispatches from{" "}
               <strong>
-                radios comunitarias, medios alternativos, prensa regional y medios tradicionales
+                community radio networks, independent investigative outlets, regional press, and mainstream media
               </strong>{" "}
-              para que ninguna problemática regional o ciudadana quede invisible ni olvidada cuando deja de ser titular.
+              so that regional and civic developments are never left invisible or forgotten once they leave the front page.
             </p>
           </div>
 
@@ -127,15 +127,13 @@ export default function HomePage() {
                 aria-hidden="true"
               />
               <span>
-                {scraping
-                  ? "Escaneando fuentes..."
-                  : "Ejecutar Escaneo Diario Ahora"}
+                {scraping ? "Scanning sources..." : "Run Daily Scan Now"}
               </span>
             </button>
             {overview?.last_scrape ? (
               <span className="text-xs text-stone-600">
-                Último barrido: {formatRelativeDays(overview.last_scrape.started_at)} (
-                {overview.total_sources} fuentes activas)
+                Last scan: {formatRelativeDays(overview.last_scrape.started_at)} (
+                {overview.total_sources} active sources)
               </span>
             ) : null}
           </div>
@@ -155,7 +153,7 @@ export default function HomePage() {
           <dl className="mt-6 grid grid-cols-2 gap-3 border-t border-stone-100 pt-5 sm:grid-cols-4">
             <div className="rounded-xl bg-stone-50 p-3.5">
               <dt className="text-xs font-medium text-stone-600">
-                Hilos / Problemáticas en Seguimiento
+                Active Story Threads
               </dt>
               <dd className="mt-1 text-2xl font-extrabold text-stone-900">
                 {overview.total_threads}
@@ -163,7 +161,7 @@ export default function HomePage() {
             </div>
             <div className="rounded-xl bg-stone-50 p-3.5">
               <dt className="text-xs font-medium text-stone-600">
-                Hitos Cronológicos Registrados
+                Chronological Milestones
               </dt>
               <dd className="mt-1 text-2xl font-extrabold text-stone-900">
                 {overview.total_events}
@@ -171,7 +169,7 @@ export default function HomePage() {
             </div>
             <div className="rounded-xl bg-amber-50/80 p-3.5">
               <dt className="text-xs font-medium text-amber-950">
-                Eventos Fuera del Radar Masivo
+                Media Blindspot Events
               </dt>
               <dd className="mt-1 text-2xl font-extrabold text-amber-900">
                 {overview.blindspot_events_count}
@@ -179,7 +177,7 @@ export default function HomePage() {
             </div>
             <div className="rounded-xl bg-stone-50 p-3.5">
               <dt className="text-xs font-medium text-stone-600">
-                Aporte Alternativo, Comunitario y Regional
+                Alternative, Community & Regional Share
               </dt>
               <dd className="mt-1 text-2xl font-extrabold text-stone-900">
                 {overview.alternative_coverage_share}%
@@ -189,7 +187,7 @@ export default function HomePage() {
         ) : null}
       </section>
 
-      {/* Buscador y Filtros por los 9 Departamentos y Categoría */}
+      {/* Search & Filters Across Bolivia's 9 Departments and Categories */}
       <search className="rounded-2xl border border-stone-200 bg-white p-5 shadow-xs">
         <form
           onSubmit={(e) => {
@@ -204,7 +202,7 @@ export default function HomePage() {
                 htmlFor="radar-search"
                 className="mb-1 block text-xs font-semibold text-stone-800"
               >
-                Buscar problemática, municipio, río, reserva o actor
+                Search issue, municipality, river, reserve, or public actor
               </label>
               <div className="relative">
                 <input
@@ -213,7 +211,7 @@ export default function HomePage() {
                   type="search"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  placeholder="Ej. Tariquía, mercurio río Beni, Pilcomayo, diésel..."
+                  placeholder="e.g. Tariquía, Beni River mercury, Pilcomayo, diesel..."
                   autoCorrect="off"
                   autoCapitalize="none"
                   spellCheck={false}
@@ -231,7 +229,7 @@ export default function HomePage() {
                 htmlFor="filter-category"
                 className="mb-1 block text-xs font-semibold text-stone-800"
               >
-                Categoría temática
+                Thematic category
               </label>
               <div className="relative">
                 <select
@@ -264,7 +262,7 @@ export default function HomePage() {
                   htmlFor="blindspot-toggle"
                   className="cursor-pointer text-xs font-semibold text-amber-950 select-none"
                 >
-                  Solo puntos ciegos (sin TV/prensa masiva)
+                  Blindspots only (no mainstream TV/press)
                 </label>
               </div>
             </div>
@@ -273,7 +271,7 @@ export default function HomePage() {
           <fieldset>
             <legend className="mb-2 flex items-center gap-1.5 text-xs font-semibold text-stone-700">
               <Filter className="h-3.5 w-3.5 text-amber-800" aria-hidden="true" />
-              <span>Filtrar por Departamento de Bolivia</span>
+              <span>Filter by Bolivian Department</span>
             </legend>
             <div className="flex flex-wrap gap-1.5">
               {BOLIVIA_DEPARTMENTS.map((dept) => {
@@ -299,7 +297,7 @@ export default function HomePage() {
         </form>
       </search>
 
-      {/* Selector de Vista: Hilos Evolutivos vs. Últimos Sucesos */}
+      {/* View Switcher: Evolving Story Threads vs. Recent Milestones */}
       <div className="flex flex-wrap items-center justify-between gap-4 border-b border-stone-200 pb-3">
         <div className="flex items-center gap-2">
           <button
@@ -313,7 +311,7 @@ export default function HomePage() {
             }`}
           >
             <Layers className="h-4 w-4" aria-hidden="true" />
-            <span>Hilos / Problemáticas en Evolución ({threads.length})</span>
+            <span>Evolving Story Threads ({threads.length})</span>
           </button>
           <button
             type="button"
@@ -326,23 +324,23 @@ export default function HomePage() {
             }`}
           >
             <Activity className="h-4 w-4" aria-hidden="true" />
-            <span>Eventos Puntuales Recientes ({events.length})</span>
+            <span>Recent Chronological Events ({events.length})</span>
           </button>
         </div>
         <span className="text-xs font-medium text-stone-600">
-          Haz clic en cualquier hilo para abrir su línea de tiempo histórica completa
+          Click any story thread to inspect its full historical timeline
         </span>
       </div>
 
       {loading ? (
         <div className="rounded-2xl border border-stone-200 bg-white p-12 text-center text-sm font-medium text-stone-600">
-          Cargando hilos informativos y eventos de Bolivia...
+          Loading Bolivian story threads and chronological events...
         </div>
       ) : activeTab === "threads" ? (
-        <section aria-label="Hilos y problemáticas en evolución">
+        <section aria-label="Evolving story threads">
           {threads.length === 0 ? (
             <div className="rounded-2xl border border-stone-200 bg-white p-10 text-center text-sm text-stone-600">
-              No se encontraron hilos con los filtros seleccionados.
+              No story threads matched the selected filters.
             </div>
           ) : (
             <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
@@ -369,19 +367,19 @@ export default function HomePage() {
                               className="h-3.5 w-3.5 text-amber-800"
                               aria-hidden="true"
                             />
-                            Visibilizado por prensa alternativa/regional
+                            Highlighted by alternative/regional press
                           </span>
                         ) : null}
                       </div>
                       <span className="inline-flex items-center gap-1 text-xs font-medium text-stone-600">
                         <Clock className="h-3.5 w-3.5" aria-hidden="true" />
-                        Actualizado: {formatRelativeDays(thread.last_updated_at)}
+                        Updated: {formatRelativeDays(thread.last_updated_at)}
                       </span>
                     </div>
 
                     <h2 className="mt-3 text-xl font-bold leading-snug text-stone-900">
                       <Link
-                        href={`/hilos/${thread.slug}`}
+                        href={`/threads/${thread.slug}`}
                         className="hover:text-amber-900 hover:underline"
                       >
                         {thread.title}
@@ -415,17 +413,17 @@ export default function HomePage() {
 
                     <div className="flex flex-wrap items-center justify-between gap-2 pt-1 text-xs">
                       <span className="font-medium text-stone-600">
-                        Seguimiento desde {formatShortDate(thread.first_seen_at)} ·{" "}
+                        Tracked since {formatShortDate(thread.first_seen_at)} ·{" "}
                         <strong className="text-stone-900">
-                          {thread.events_count} hitos
+                          {thread.events_count} milestones
                         </strong>{" "}
-                        ({thread.articles_count} notas)
+                        ({thread.articles_count} articles)
                       </span>
                       <Link
-                        href={`/hilos/${thread.slug}`}
+                        href={`/threads/${thread.slug}`}
                         className="inline-flex items-center gap-1.5 rounded-lg bg-amber-50 px-3 py-1.5 font-bold text-amber-950 transition hover:bg-amber-100"
                       >
-                        <span>Ver línea de tiempo</span>
+                        <span>View timeline</span>
                         <ArrowRight className="h-3.5 w-3.5" aria-hidden="true" />
                       </Link>
                     </div>
@@ -436,7 +434,7 @@ export default function HomePage() {
           )}
         </section>
       ) : (
-        <section aria-label="Eventos recientes agrupados">
+        <section aria-label="Recent clustered events">
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
             {events.map((ev, idx) => (
               <EventCard

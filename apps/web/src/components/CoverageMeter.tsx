@@ -22,16 +22,16 @@ export function CoverageMeter({
     <div className="space-y-1.5">
       <div className="flex items-center justify-between text-xs">
         <span className="font-semibold text-amber-900">
-          Alternativos / Comunitarios / Regionales: {nonMainstreamTotal} ({nonMainPct}%)
+          Independent / Community / Regional: {nonMainstreamTotal} ({nonMainPct}%)
         </span>
         <span className="font-medium text-stone-600">
-          Masivos: {mainstreamCount} ({mainPct}%)
+          Mainstream: {mainstreamCount} ({mainPct}%)
         </span>
       </div>
       <div
         className="flex h-2 w-full overflow-hidden rounded-full bg-stone-200"
         role="img"
-        aria-label={`Distribución de cobertura: ${nonMainPct}% medios alternativos, comunitarios y regionales frente a ${mainPct}% medios tradicionales`}
+        aria-label={`Coverage distribution: ${nonMainstreamTotal} independent, community, and regional articles (${nonMainPct}%) vs ${mainstreamCount} mainstream articles (${mainPct}%)`}
       >
         <div
           className="bg-amber-700 transition-all"
@@ -46,22 +46,22 @@ export function CoverageMeter({
         <div className="flex flex-wrap gap-2 pt-0.5 text-[11px] text-stone-600">
           {alternativeCount > 0 ? (
             <span className="rounded bg-amber-100/80 px-1.5 py-0.5 font-medium text-amber-950">
-              {alternativeCount} Independientes
+              {alternativeCount} Independent
             </span>
           ) : null}
           {communityCount > 0 ? (
             <span className="rounded bg-emerald-100/80 px-1.5 py-0.5 font-medium text-emerald-950">
-              {communityCount} Radios Comunitarias
+              {communityCount} Community Radio
             </span>
           ) : null}
           {regionalCount > 0 ? (
             <span className="rounded bg-sky-100/80 px-1.5 py-0.5 font-medium text-sky-950">
-              {regionalCount} Regionales
+              {regionalCount} Regional Press
             </span>
           ) : null}
           {mainstreamCount === 0 ? (
             <span className="rounded bg-rose-100 px-1.5 py-0.5 font-semibold text-rose-900">
-              Punto ciego en TV/Prensa Masiva
+              Mainstream Media Blindspot
             </span>
           ) : null}
         </div>

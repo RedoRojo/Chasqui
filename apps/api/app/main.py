@@ -64,7 +64,7 @@ async def lifespan(_app: FastAPI):
 
 app = FastAPI(
     title="Chasqui API",
-    description="API de centralización de noticias de Bolivia y seguimiento longitudinal de problemáticas.",
+    description="Longitudinal news aggregation and media blindspot intelligence API for Bolivia.",
     version="0.1.0",
     lifespan=lifespan,
 )
@@ -161,7 +161,7 @@ def list_threads(
     db: Session = Depends(get_db),
 ) -> list[StoryThreadOut]:
     query = db.query(StoryThread)
-    if category and category != "Todas":
+    if category and category not in ("All", "Todas"):
         query = query.filter(StoryThread.category == category)
     if status:
         query = query.filter(StoryThread.status == status)
@@ -170,7 +170,7 @@ def list_threads(
 
     threads = query.order_by(StoryThread.last_updated_at.desc()).all()
 
-    if department and department != "Todos":
+    if department and department not in ("All", "Todos"):
         threads = [
             t
             for t in threads
@@ -218,9 +218,8 @@ def get_thread_detail(slug: str, db: Session = Depends(get_db)) -> StoryThreadDe
         .first()
     )
     if not thread:
-        raise HTTPException(status_code=404, detail="Hilo informativo no encontrado")
+        raise HTTPException(status_code=404, detail="Story thread not found")
 
-    # Sort events chronologically descending (with frontend option to toggle ascending/descending)
     thread.events.sort(key=lambda e: e.event_date, reverse=True)
     return StoryThreadDetailOut.model_validate(thread)
 
@@ -237,9 +236,9 @@ def list_events(
         joinedload(StoryEvent.articles).joinedload(Article.source),
         joinedload(StoryEvent.thread),
     )
-    if department and department != "Todos":
+    if department and department not in ("All", "Todos"):
         query = query.filter(StoryEvent.primary_department == department)
-    if category and category != "Todas":
+    if category and category not in ("All", "Todas"):
         query = query.filter(StoryEvent.category == category)
     if blindspot_only:
         query = query.filter(StoryEvent.is_blindspot == True)  # noqa: E712
@@ -262,9 +261,9 @@ def search_articles(
 ) -> list[ArticleOut]:
     query = db.query(Article).options(joinedload(Article.source)).join(Source, Article.source_id == Source.id)
 
-    if department and department != "Todos":
+    if department and department not in ("All", "Todos"):
         query = query.filter(Article.department == department)
-    if category and category != "Todas":
+    if category and category not in ("All", "Todas"):
         query = query.filter(Article.category == category)
     if tier and tier != "all":
         query = query.filter(Source.tier == tier)
@@ -313,7 +312,7 @@ def list_sources(
     query = db.query(Source)
     if tier and tier != "all":
         query = query.filter(Source.tier == tier)
-    if department and department != "Todos":
+    if department and department not in ("All", "Todos"):
         query = query.filter(Source.department == department)
     sources = query.order_by(Source.tier.asc(), Source.name.asc()).all()
     return [SourceOut.model_validate(s) for s in sources]
@@ -324,7 +323,7 @@ def create_source(payload: SourceCreate, db: Session = Depends(get_db)) -> Sourc
     slug = slugify(payload.name)
     existing = db.query(Source).filter(or_(Source.slug == slug, Source.url == payload.url)).first()
     if existing:
-        raise HTTPException(status_code=400, detail="Ya existe una fuente con ese nombre o URL.")
+        raise HTTPException(status_code=400, detail="A source with that name or URL already exists.")
     src = Source(
         name=payload.name.strip(),
         slug=slug,
@@ -344,7 +343,7 @@ def create_source(payload: SourceCreate, db: Session = Depends(get_db)) -> Sourc
 
 @app.post("/api/scrape/run", response_model=ScrapeRunOut)
 def trigger_scrape(
-    live_network: bool = Query(default=True, description="Intentar conexión en vivo a RSS/portales de Bolivia"),
+    live_network: bool = Query(default=True, description="Run live network scan across Bolivian RSS/HTML portals"),
     db: Session = Depends(get_db),
 ) -> ScrapeRunOut:
     run = run_daily_scan(db, trigger="manual", try_live_network=live_network)
@@ -361,7 +360,7 @@ def list_scrape_runs(limit: int = Query(default=10, ge=1, le=50), db: Session = 
 def ingest_custom_article(payload: ArticleIngestRequest, db: Session = Depends(get_db)) -> dict[str, Any]:
     source = db.query(Source).filter(Source.slug == payload.source_slug).first()
     if not source:
-        raise HTTPException(status_code=404, detail="Fuente no encontrada")
+        raise HTTPException(status_code=404, detail="Source not found")
 
     article, created_event, updated_thread = ingest_and_cluster_article(
         db=db,

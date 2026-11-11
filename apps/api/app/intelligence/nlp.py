@@ -5,6 +5,7 @@ import unicodedata
 
 import numpy as np
 
+# Stopwords for Spanish text normalization (as Bolivian news outlets publish in Spanish)
 SPANISH_STOPWORDS = {
     "de", "la", "que", "el", "en", "y", "a", "los", "del", "se", "las", "por", "un",
     "para", "con", "no", "una", "su", "al", "lo", "como", "mas", "pero", "sus", "le",
@@ -69,7 +70,7 @@ DEPARTMENT_KEYWORDS: dict[str, list[str]] = {
 }
 
 CATEGORY_RULES: dict[str, list[str]] = {
-    "Justicia y Seguridad Ciudadana": [
+    "Justice & Public Security": [
         "aprehenden", "aprehendido", "aprehension", "detencion", "detenido", "fiscalia",
         "fiscalía", "felcn", "felcc", "policia", "policía", "tdj", "tsj", "tribunal",
         "juez", "jueces", "vocal", "quezada", "maletas", "corrupcion", "corrupción",
@@ -78,14 +79,14 @@ CATEGORY_RULES: dict[str, list[str]] = {
         "penitenciaria", "juicio", "imputacion", "imputación", "salvoconducto", "beller",
         "asilo", "migracion", "migración", "cerimedo", "items", "ítems",
     ],
-    "Política y Gestión Pública": [
+    "Politics & Governance": [
         "gobierno", "presidente", "rodrigo paz", "lara", "legislatura", "asamblea",
         "legislativa", "diputados", "senadores", "senado", "gabinete", "ministro",
         "ministerio", "alcaldia", "alcaldía", "alcalde", "alcaldes", "amb", "concejal",
         "gobernacion", "gobernación", "elecciones", "tse", "cancilleria", "cancillería",
         "garcia linera", "garcía linera", "diplomatico", "bilateral", "decreto", "ley",
     ],
-    "Economía y Abastecimiento": [
+    "Economy & Supply": [
         "economia", "economía", "inflacion", "inflación", "precio", "precios", "pan",
         "canasta familiar", "alimentos", "mercados", "combustible", "combustibles",
         "diesel", "diésel", "gasolina", "surtidor", "fila", "filas", "anh", "ypfb",
@@ -93,26 +94,26 @@ CATEGORY_RULES: dict[str, list[str]] = {
         "idh", "tributaria", "deuda", "financiamiento", "euros", "millones", "emapa",
         "fletes", "importacion", "exportacion", "producir", "productores",
     ],
-    "Conflictos Sociales": [
+    "Social Conflicts & Labor": [
         "bloqueo", "bloqueos", "paro", "marcha", "protesta", "movilizacion", "movilización",
         "magisterio", "maestros", "institutos", "cob", "ampliado", "cocaleros",
         "federaciones", "puesto de control", "rebasan", "conflicto", "huelga",
         "pliego", "demanda", "sindicato", "transporte", "gremiales", "vecinos",
         "emergencia", "cabildo", "cívica", "civica",
     ],
-    "Salud y Servicios Básicos": [
+    "Health & Public Services": [
         "salud", "sedes", "hospital", "medicamentos", "diabetes", "antirrabica",
         "antirrábica", "vacunacion", "vacunación", "cns", "educacion", "educación",
         "clases", "escuela", "colegios", "teleferico", "teleférico", "agua potable",
         "aguas servidas", "alcantarillado", "ecojet", "vuelos", "pasajes", "discapacidad",
     ],
-    "Medio Ambiente y Territorio": [
+    "Environment & Territory": [
         "incendio", "incendios", "hectareas", "hectáreas", "quemadas", "bosque", "bosques",
         "cop31", "cop 31", "amazonia", "amazonía", "sequia", "sequía", "contaminacion",
         "contaminación", "guadalquivir", "mercurio", "tariquia", "tariquía", "madidi",
         "chiquitania", "chiquitanía", "pilcomayo", "poopó", "uru uru", "clima",
     ],
-    "Minería y Extractivismo": [
+    "Mining & Extractivism": [
         "mineria", "minería", "minero", "mineros", "cooperativa", "cooperativas",
         "aurifera", "aurífera", "oro", "litio", "cerro rico", "comibol", "ajam",
         "fencomin", "dique de colas", "ingenio", "huanuni", "uyuni", "hidrocarburos",
@@ -170,7 +171,7 @@ def stem_es(word: str) -> str:
     return word
 
 
-def detect_department(title: str, content: str, fallback: str = "Nacional") -> str:
+def detect_department(title: str, content: str, fallback: str = "National") -> str:
     combined = f"{title} {title} {content[:1200]}".lower()
     scores: dict[str, int] = {}
     for dept, keywords in DEPARTMENT_KEYWORDS.items():
@@ -186,17 +187,17 @@ def detect_department(title: str, content: str, fallback: str = "Nacional") -> s
     return max(scores.items(), key=lambda item: item[1])[0]
 
 
-def detect_all_departments(title: str, content: str, primary: str = "Nacional") -> list[str]:
+def detect_all_departments(title: str, content: str, primary: str = "National") -> list[str]:
     combined = f"{title} {content[:1500]}".lower()
     found: list[str] = []
-    if primary and primary != "Nacional":
+    if primary and primary != "National":
         found.append(primary)
     for dept, keywords in DEPARTMENT_KEYWORDS.items():
         if dept in found:
             continue
         if any(kw in combined for kw in keywords):
             found.append(dept)
-    return found or ([primary] if primary else ["Nacional"])
+    return found or ([primary] if primary else ["National"])
 
 
 def classify_category(title: str, content: str) -> str:
@@ -207,7 +208,7 @@ def classify_category(title: str, content: str) -> str:
         if score > 0:
             scores[category] = score
     if not scores:
-        return "Política y Gestión Pública"
+        return "Politics & Governance"
     return max(scores.items(), key=lambda item: item[1])[0]
 
 
@@ -259,6 +260,11 @@ def generate_summary(title: str, content: str, max_chars: int = 320) -> str:
 
 
 def compute_embedding(text: str, dim: int = 128) -> list[float]:
+    """
+    Computes a dense `dim`-dimensional semantic vector combining:
+    1) Domain concept dimensions for Bolivian news topics and regions (first 16 dims)
+    2) Weighted feature hashing of lexical stems and bigrams (remaining 112 dims)
+    """
     vec = np.zeros(dim, dtype=np.float64)
     tokens = tokenize(text)
     if not tokens:
@@ -323,4 +329,4 @@ def average_embeddings(vectors: list[list[float]]) -> list[float]:
 def slugify(text: str) -> str:
     norm = normalize_text(text).strip()
     slug = re.sub(r"\s+", "-", norm)
-    return slug[:90].strip("-") or "hilo-informativo"
+    return slug[:90].strip("-") or "story-thread"

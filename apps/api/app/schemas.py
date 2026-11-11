@@ -26,7 +26,7 @@ class SourceCreate(BaseModel):
     url: str
     rss_url: str | None = None
     tier: str = Field(default="alternative", description="mainstream | alternative | regional | community")
-    department: str = "Nacional"
+    department: str = "National"
     scrape_strategy: str = "rss"
     description: str = ""
 

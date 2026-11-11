@@ -34,7 +34,7 @@ export function EventCard({
           {event.is_blindspot ? (
             <span className="inline-flex items-center gap-1 rounded-md bg-amber-100 px-2.5 py-1 font-semibold text-amber-950">
               <AlertTriangle className="h-3.5 w-3.5 text-amber-800" aria-hidden="true" />
-              Fuera del radar masivo
+              Mainstream Blindspot
             </span>
           ) : null}
         </div>
@@ -58,12 +58,12 @@ export function EventCard({
       {showThreadLink && event.thread_slug ? (
         <div className="mt-3 rounded-lg border border-amber-200/80 bg-amber-50/60 px-3 py-2">
           <Link
-            href={`/hilos/${event.thread_slug}`}
+            href={`/threads/${event.thread_slug}`}
             className="inline-flex items-center gap-1.5 text-xs font-semibold text-amber-950 hover:underline"
           >
             <Layers className="h-3.5 w-3.5 text-amber-800" aria-hidden="true" />
             <span>
-              Parte del hilo en evolución: {event.thread_title || event.thread_slug}
+              Part of evolving thread: {event.thread_title || event.thread_slug}
             </span>
           </Link>
         </div>
@@ -84,7 +84,7 @@ export function EventCard({
       {event.articles && event.articles.length > 0 ? (
         <details className="mt-3.5 rounded-lg border border-stone-200 bg-stone-50/70 px-3.5 py-2">
           <summary className="cursor-pointer text-xs font-semibold text-stone-800 select-none">
-            Ver las {event.articles.length} fuentes que reportaron este hecho
+            View the {event.articles.length} source(s) that reported this event
           </summary>
           <ul className="mt-2.5 divide-y divide-stone-200/80">
             {event.articles.map((art) => (
@@ -92,7 +92,7 @@ export function EventCard({
                 <div className="flex flex-wrap items-center justify-between gap-2">
                   <div className="flex items-center gap-2">
                     <span className="text-xs font-bold text-stone-900">
-                      {art.source?.name || "Fuente registrada"}
+                      {art.source?.name || "Registered source"}
                     </span>
                     {art.source?.tier ? (
                       <span className="rounded bg-stone-200/80 px-1.5 py-0.5 text-[10px] font-medium text-stone-700">
@@ -106,7 +106,7 @@ export function EventCard({
                     rel="noopener noreferrer"
                     className="inline-flex items-center gap-1 text-xs font-semibold text-amber-900 hover:underline"
                   >
-                    <span>Nota original</span>
+                    <span>Original article</span>
                     <ExternalLink className="h-3 w-3" aria-hidden="true" />
                   </a>
                 </div>

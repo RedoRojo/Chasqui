@@ -185,9 +185,9 @@ Chasqui/
         └── src/
             ├── app/
             │   ├── page.tsx                # Daily Radar, Thread Evolution & Blindspot Filters
-            │   ├── hilos/[slug]/page.tsx   # Interactive Longitudinal Timeline View
-            │   ├── archivo/page.tsx        # Historical & Semantic Search Archive
-            │   └── fuentes/page.tsx        # Source Directory & Live Article Clustering Sandbox
+            │   ├── threads/[slug]/page.tsx # Interactive Longitudinal Timeline View
+            │   ├── archive/page.tsx        # Historical & Semantic Search Archive
+            │   └── sources/page.tsx        # Source Directory & Live Article Clustering Sandbox
             ├── components/
             │   ├── Navbar.tsx
             │   ├── CoverageMeter.tsx       # Visual bar comparing Alternative/Regional vs. Mainstream

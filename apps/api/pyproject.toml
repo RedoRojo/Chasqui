@@ -1,7 +1,7 @@
 [project]
 name = "chasqui-api"
 version = "0.1.0"
-description = "Motor de ingesta diaria, centralización de noticias de Bolivia y seguimiento longitudinal de problemáticas para Chasqui."
+description = "Daily ingestion engine, Bolivian news centralization, and longitudinal story thread tracking for Chasqui."
 requires-python = ">=3.11"
 dependencies = [
     "fastapi>=0.115.0",

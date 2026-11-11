@@ -2,7 +2,7 @@
   "name": "chasqui-monorepo",
   "version": "0.1.0",
   "private": true,
-  "description": "Monorepo de Chasqui: Centralización de noticias de Bolivia y seguimiento longitudinal de problemáticas",
+  "description": "Chasqui Monorepo: Longitudinal news aggregation and media blindspot intelligence platform for Bolivia",
   "scripts": {
     "dev:web": "npm --prefix apps/web run dev",
     "build:web": "npm --prefix apps/web run build",

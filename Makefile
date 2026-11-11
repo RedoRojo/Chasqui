@@ -4,14 +4,14 @@ PYTHON := apps/api/.venv/bin/python
 UVICORN := apps/api/.venv/bin/uvicorn
 
 help:
-	@echo "=== Comandos del Monorepo Chasqui ==="
-	@echo "  make setup     - Instala dependencias de Backend (Python venv) y Frontend (Next.js)"
-	@echo "  make dev-api   - Inicia el servidor FastAPI + Scheduler en http://localhost:8000"
-	@echo "  make dev-web   - Inicia la aplicación web Next.js en http://localhost:3000"
-	@echo "  make scan      - Ejecuta un escaneo en vivo de las 46 fuentes bolivianas desde CLI"
-	@echo "  make status    - Muestra las estadísticas actuales de hilos, eventos y cobertura"
-	@echo "  make seed      - Inicializa catálogo, base histórica y ejecuta escaneo inicial"
-	@echo "  make check     - Valida sintaxis Python y chequeo de tipos TypeScript (tsc)"
+	@echo "=== Chasqui Monorepo Commands ==="
+	@echo "  make setup     - Install Backend (Python venv) and Frontend (Next.js) dependencies"
+	@echo "  make dev-api   - Start FastAPI server + Daily Scheduler on http://localhost:8000"
+	@echo "  make dev-web   - Start Next.js web application on http://localhost:3000"
+	@echo "  make scan      - Run a live concurrent scan across all 46 Bolivian news sources"
+	@echo "  make status    - Print current database metrics, threads, events, and coverage share"
+	@echo "  make seed      - Initialize source catalog, historical baseline, and initial live scan"
+	@echo "  make check     - Validate Python syntax and TypeScript types (tsc --noEmit)"
 
 setup:
 	cd apps/api && python3 -m venv .venv && .venv/bin/pip install --upgrade pip && .venv/bin/pip install -r requirements.txt

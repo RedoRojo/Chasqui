@@ -9,7 +9,7 @@ from app.scraper.engine import run_daily_scan
 
 
 def seed_database(db: Session, run_live_after_seed: bool = True) -> None:
-    # 1. Sincronizar las 42 fuentes del catálogo nacional, digital, comunitario y regional
+    """Seeds the 46 Bolivian news sources, historical baseline threads, and runs a live scan."""
     existing_sources = {s.slug: s for s in db.query(Source).all()}
     for src_data in BOLIVIAN_SOURCES_CATALOG:
         if src_data["slug"] not in existing_sources:
@@ -38,7 +38,7 @@ def seed_database(db: Session, run_live_after_seed: bool = True) -> None:
             "title": "Caso 'Maletas', aprehensión del expresidente del TDJ de Santa Cruz Aldo Quezada y reestructuración judicial",
             "slug": "caso-maletas-aprehension-aldo-quezada-tdj-santa-cruz",
             "status": "active",
-            "category": "Justicia y Seguridad Ciudadana",
+            "category": "Justice & Public Security",
             "primary_department": "Santa Cruz",
             "departments_affected": ["Santa Cruz", "Chuquisaca", "La Paz"],
             "key_entities": ["Caso Maletas", "TDJ Santa Cruz", "FELCN", "Fiscalía", "TSJ"],
@@ -112,8 +112,8 @@ def seed_database(db: Session, run_live_after_seed: bool = True) -> None:
             "title": "Conflicto del Magisterio y la COB por transferencia de institutos técnicos y pliego sectorial",
             "slug": "conflicto-magisterio-cob-transferencia-institutos-tecnicos",
             "status": "active",
-            "category": "Conflictos Sociales",
-            "primary_department": "Nacional",
+            "category": "Social Conflicts & Labor",
+            "primary_department": "National",
             "departments_affected": ["La Paz", "Potosí", "Cochabamba", "Santa Cruz"],
             "key_entities": ["Magisterio Rural", "COB", "Asamblea Legislativa"],
             "current_summary": (
@@ -157,8 +157,8 @@ def seed_database(db: Session, run_live_after_seed: bool = True) -> None:
             "title": "Inflación de alimentos, precio del pan, tarifas de transporte y emergencia financiera en Alcaldías (AMB)",
             "slug": "inflacion-alimentos-precio-pan-emergencia-financiera-alcaldias",
             "status": "active",
-            "category": "Economía y Abastecimiento",
-            "primary_department": "Nacional",
+            "category": "Economy & Supply",
+            "primary_department": "National",
             "departments_affected": ["La Paz", "Potosí", "Cochabamba", "Santa Cruz", "Tarija"],
             "key_entities": ["INE", "AMB", "Defensoría del Pueblo", "EMAPA"],
             "current_summary": (
@@ -174,7 +174,7 @@ def seed_database(db: Session, run_live_after_seed: bool = True) -> None:
                         "El índice de precios al consumidor reflejó presiones en papa, cebolla, tomate, carne de res y "
                         "transporte urbano en las principales ciudades del país."
                     ),
-                    "department": "Nacional",
+                    "department": "National",
                     "articles": [
                         {
                             "source_slug": "economy-bolivia",
@@ -231,7 +231,7 @@ def seed_database(db: Session, run_live_after_seed: bool = True) -> None:
             "title": "Tensión en el Trópico de Cochabamba: operativos policiales, retenes de UMOPAR y protesta de federaciones cocaleras",
             "slug": "tension-tropico-cochabamba-operativos-policiales-umopar-cocaleros",
             "status": "active",
-            "category": "Conflictos Sociales",
+            "category": "Social Conflicts & Labor",
             "primary_department": "Cochabamba",
             "departments_affected": ["Cochabamba"],
             "key_entities": ["Seis Federaciones del Trópico", "UMOPAR", "FELCN"],
@@ -275,7 +275,7 @@ def seed_database(db: Session, run_live_after_seed: bool = True) -> None:
             "title": "Salvoconductos, solicitudes de asilo en México y controversia por salida del país de investigados",
             "slug": "salvoconductos-asilo-mexico-salida-investigados-beller-garcia-linera",
             "status": "active",
-            "category": "Política y Gestión Pública",
+            "category": "Politics & Governance",
             "primary_department": "La Paz",
             "departments_affected": ["La Paz", "Santa Cruz"],
             "key_entities": ["Cancillería", "Asamblea Legislativa", "Caso Hotel Las Américas", "Fiscalía"],
@@ -320,7 +320,7 @@ def seed_database(db: Session, run_live_after_seed: bool = True) -> None:
             "title": "Control de combustibles y operativos contra el desvío y contrabando en fronteras y surtidores",
             "slug": "control-combustibles-operativos-desvio-contrabando-anh-ypfb-aduana",
             "status": "active",
-            "category": "Economía y Abastecimiento",
+            "category": "Economy & Supply",
             "primary_department": "Tarija",
             "departments_affected": ["Tarija", "Chuquisaca", "Oruro", "Santa Cruz"],
             "key_entities": ["ANH", "YPFB", "Aduana Nacional"],
@@ -364,7 +364,7 @@ def seed_database(db: Session, run_live_after_seed: bool = True) -> None:
             "title": "Denuncias por presunta red de venta de ítems y cobros irregulares en DGAC y NAABOL (Caso Cerimedo)",
             "slug": "denuncias-venta-items-cobros-irregulares-dgac-naabol-cerimedo",
             "status": "active",
-            "category": "Justicia y Seguridad Ciudadana",
+            "category": "Justice & Public Security",
             "primary_department": "La Paz",
             "departments_affected": ["La Paz", "Pando", "Santa Cruz"],
             "key_entities": ["DGAC", "NAABOL", "Asamblea Legislativa", "Fiscalía"],
@@ -400,8 +400,8 @@ def seed_database(db: Session, run_live_after_seed: bool = True) -> None:
             "title": "Bolivia en la COP31, financiamiento internacional para bosques y crisis ambiental en cuencas regionales",
             "slug": "bolivia-cop31-financiamiento-bosques-crisis-ambiental-cuencas",
             "status": "active",
-            "category": "Medio Ambiente y Territorio",
-            "primary_department": "Nacional",
+            "category": "Environment & Territory",
+            "primary_department": "National",
             "departments_affected": ["Santa Cruz", "Tarija", "Cochabamba", "Beni"],
             "key_entities": ["COP31", "ABT", "SERNAP", "Fiscalía"],
             "current_summary": (
@@ -526,11 +526,11 @@ def seed_database(db: Session, run_live_after_seed: bool = True) -> None:
         new_articles=total_articles_seeded,
         new_events=total_events_seeded,
         updated_threads=len(threads_blueprint),
-        details={"note": "Base histórica cargada."},
+        details={"note": "Historical baseline initialized."},
     )
     db.add(initial_run)
     db.commit()
 
-    # 2. Ejecutar escaneo real en vivo de las 42 fuentes bolivianas para poblar con las noticias reales del día
+    # Run live network scrape across all 46 Bolivian news sources
     if run_live_after_seed:
         run_daily_scan(db, trigger="scheduled", try_live_network=True, max_per_source=4)

@@ -100,8 +100,8 @@ export interface DashboardOverview {
 }
 
 export const BOLIVIA_DEPARTMENTS = [
-  "Todos",
-  "Nacional",
+  "All",
+  "National",
   "La Paz",
   "Santa Cruz",
   "Cochabamba",
@@ -114,19 +114,19 @@ export const BOLIVIA_DEPARTMENTS = [
 ] as const;
 
 export const NEWS_CATEGORIES = [
-  "Todas",
-  "Justicia y Seguridad Ciudadana",
-  "Política y Gestión Pública",
-  "Economía y Abastecimiento",
-  "Conflictos Sociales",
-  "Salud y Servicios Básicos",
-  "Medio Ambiente y Territorio",
-  "Minería y Extractivismo",
+  "All",
+  "Justice & Public Security",
+  "Politics & Governance",
+  "Economy & Supply",
+  "Social Conflicts & Labor",
+  "Health & Public Services",
+  "Environment & Territory",
+  "Mining & Extractivism",
 ] as const;
 
 export const TIER_LABELS: Record<SourceTier, string> = {
-  alternative: "Alternativo / Investigación",
-  community: "Radio Comunitaria / Agencia",
-  regional: "Regional / Departamental",
-  mainstream: "Tradicional / Masivo",
+  alternative: "Independent / Investigative",
+  community: "Community Radio / Agency",
+  regional: "Regional / Departmental",
+  mainstream: "Mainstream / Legacy",
 };

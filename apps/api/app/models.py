@@ -17,6 +17,8 @@ def new_id() -> str:
 
 
 class Source(Base):
+    """News outlet or media source monitored by Chasqui."""
+
     __tablename__ = "sources"
 
     id: Mapped[str] = mapped_column(String(36), primary_key=True, default=new_id)
@@ -26,7 +28,7 @@ class Source(Base):
     rss_url: Mapped[str | None] = mapped_column(String(500), nullable=True)
     # mainstream | alternative | regional | community
     tier: Mapped[str] = mapped_column(String(40), index=True, nullable=False)
-    department: Mapped[str] = mapped_column(String(60), index=True, default="Nacional")
+    department: Mapped[str] = mapped_column(String(60), index=True, default="National")
     scrape_strategy: Mapped[str] = mapped_column(String(40), default="rss")
     description: Mapped[str] = mapped_column(Text, default="")
     is_active: Mapped[bool] = mapped_column(Boolean, default=True)
@@ -37,7 +39,7 @@ class Source(Base):
 
 
 class StoryThread(Base):
-    """Hilo o problemática longitudinal que evoluciona a lo largo del tiempo."""
+    """Longitudinal storyline or public issue evolving over time."""
 
     __tablename__ = "story_threads"
 
@@ -48,7 +50,7 @@ class StoryThread(Base):
     # active | monitoring | resolved
     status: Mapped[str] = mapped_column(String(40), index=True, default="active")
     category: Mapped[str] = mapped_column(String(80), index=True, nullable=False)
-    primary_department: Mapped[str] = mapped_column(String(60), index=True, default="Nacional")
+    primary_department: Mapped[str] = mapped_column(String(60), index=True, default="National")
     departments_affected: Mapped[list[str]] = mapped_column(JSON, default=list)
     key_entities: Mapped[list[str]] = mapped_column(JSON, default=list)
     first_seen_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow, index=True)
@@ -57,7 +59,7 @@ class StoryThread(Base):
     articles_count: Mapped[int] = mapped_column(Integer, default=0)
     mainstream_count: Mapped[int] = mapped_column(Integer, default=0)
     alternative_count: Mapped[int] = mapped_column(Integer, default=0)
-    # Porcentaje (0 a 100) de cobertura no tradicional (alternativa, comunitaria, regional)
+    # Percentage (0..100) of non-mainstream coverage (alternative, community, regional)
     blindspot_ratio: Mapped[float] = mapped_column(Float, default=0.0, index=True)
     thread_embedding: Mapped[list[float]] = mapped_column(JSON, default=list)
 
@@ -69,7 +71,7 @@ class StoryThread(Base):
 
 
 class StoryEvent(Base):
-    """Suceso concreto dentro de una fecha/ventana que agrupa notas de distintos medios."""
+    """Concrete occurrence within a time window grouping articles from multiple sources."""
 
     __tablename__ = "story_events"
 
@@ -80,7 +82,7 @@ class StoryEvent(Base):
     title: Mapped[str] = mapped_column(String(280), nullable=False)
     summary: Mapped[str] = mapped_column(Text, nullable=False)
     event_date: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow, index=True)
-    primary_department: Mapped[str] = mapped_column(String(60), index=True, default="Nacional")
+    primary_department: Mapped[str] = mapped_column(String(60), index=True, default="National")
     category: Mapped[str] = mapped_column(String(80), index=True, default="General")
     entities: Mapped[list[str]] = mapped_column(JSON, default=list)
     mainstream_count: Mapped[int] = mapped_column(Integer, default=0)
@@ -99,7 +101,7 @@ class StoryEvent(Base):
 
 
 class Article(Base):
-    """Nota periodística individual publicada por una fuente."""
+    """Individual news article published by a monitored source."""
 
     __tablename__ = "articles"
 
@@ -116,8 +118,8 @@ class Article(Base):
     summary: Mapped[str] = mapped_column(Text, nullable=False)
     published_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow, index=True)
     scraped_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
-    department: Mapped[str] = mapped_column(String(60), index=True, default="Nacional")
-    category: Mapped[str] = mapped_column(String(80), index=True, default="Sociedad")
+    department: Mapped[str] = mapped_column(String(60), index=True, default="National")
+    category: Mapped[str] = mapped_column(String(80), index=True, default="Politics & Governance")
     entities: Mapped[list[str]] = mapped_column(JSON, default=list)
     embedding: Mapped[list[float]] = mapped_column(JSON, default=list)
 
@@ -126,14 +128,14 @@ class Article(Base):
 
 
 class ScrapeRun(Base):
-    """Registro de cada ejecución del escaneo diario o bajo demanda."""
+    """Execution log for each scheduled or on-demand scraping run."""
 
     __tablename__ = "scrape_runs"
 
     id: Mapped[str] = mapped_column(String(36), primary_key=True, default=new_id)
     started_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow, index=True)
     finished_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
-    trigger: Mapped[str] = mapped_column(String(40), default="manual")  # scheduled | manual | seed
+    trigger: Mapped[str] = mapped_column(String(40), default="manual")  # scheduled | manual | cli | seed
     status: Mapped[str] = mapped_column(String(40), default="running")  # running | completed | partial | failed
     sources_scanned: Mapped[int] = mapped_column(Integer, default=0)
     new_articles: Mapped[int] = mapped_column(Integer, default=0)

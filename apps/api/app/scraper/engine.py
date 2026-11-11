@@ -157,7 +157,7 @@ def fetch_html_portal_items(source: Source, client: httpx.Client, limit: int) ->
 
 
 def fetch_source_bundle(source_snapshot: dict[str, Any], limit: int) -> dict[str, Any]:
-    """Ejecutado en paralelo para recolectar artículos de una fuente sin bloquear la BD."""
+    """Executed concurrently in a worker pool to fetch articles from a source without blocking the DB."""
     dummy_src = Source(**source_snapshot)
     collected: list[dict[str, Any]] = []
     error_msg: str | None = None
@@ -184,9 +184,9 @@ def run_daily_scan(
     max_per_source: int = 4,
 ) -> ScrapeRun:
     """
-    Ejecuta el escaneo concurrente de las 42 fuentes bolivianas:
-    Extrae artículos desde RSS y portales HTML en vivo, deduplica por URL
-    y los clasifica en Eventos (StoryEvent) e Hilos longitudinales (StoryThread).
+    Runs a concurrent scan across all active Bolivian news sources:
+    Fetches live articles via RSS and clean HTML parsing, deduplicates by URL,
+    and clusters them into StoryEvents and longitudinal StoryThreads.
     """
     run = ScrapeRun(
         started_at=datetime.now(timezone.utc),

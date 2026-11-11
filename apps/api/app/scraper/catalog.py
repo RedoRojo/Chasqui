@@ -2,7 +2,7 @@ from typing import Any
 
 BOLIVIAN_SOURCES_CATALOG: list[dict[str, Any]] = [
     # =========================================================================
-    # 1. MEDIOS MASIVOS / TELEVISIÓN Y PRENSA NACIONAL (mainstream)
+    # 1. MAINSTREAM TELEVISION & NATIONAL LEGACY PRESS (mainstream)
     # =========================================================================
     {
         "name": "Unitel Digital",
@@ -10,9 +10,9 @@ BOLIVIAN_SOURCES_CATALOG: list[dict[str, Any]] = [
         "url": "https://unitel.bo",
         "rss_url": None,
         "tier": "mainstream",
-        "department": "Nacional",
+        "department": "National",
         "scrape_strategy": "html",
-        "description": "Portal digital de la red televisiva Unitel con cobertura minuto a minuto de seguridad, política, economía y ciudades.",
+        "description": "Digital portal of Bolivia's Unitel television network with breaking coverage of security, politics, economy, and cities.",
     },
     {
         "name": "Red Uno de Bolivia",
@@ -20,9 +20,9 @@ BOLIVIAN_SOURCES_CATALOG: list[dict[str, Any]] = [
         "url": "https://www.reduno.com.bo",
         "rss_url": "https://www.reduno.com.bo/rss",
         "tier": "mainstream",
-        "department": "Nacional",
+        "department": "National",
         "scrape_strategy": "rss",
-        "description": "Red nacional de televisión y portal informativo con sede en Santa Cruz, La Paz y Cochabamba.",
+        "description": "National television network and news portal operating from Santa Cruz, La Paz, and Cochabamba.",
     },
     {
         "name": "El Deber",
@@ -32,7 +32,7 @@ BOLIVIAN_SOURCES_CATALOG: list[dict[str, Any]] = [
         "tier": "mainstream",
         "department": "Santa Cruz",
         "scrape_strategy": "html",
-        "description": "Diario de circulación nacional con sede en Santa Cruz; cobertura de política, economía, justicia y sociedad.",
+        "description": "Leading national newspaper based in Santa Cruz covering politics, macroeconomics, justice, and society.",
     },
     {
         "name": "La Razón",
@@ -42,7 +42,7 @@ BOLIVIAN_SOURCES_CATALOG: list[dict[str, Any]] = [
         "tier": "mainstream",
         "department": "La Paz",
         "scrape_strategy": "rss",
-        "description": "Periódico nacional editado en La Paz especializado en política, Ejecutivo, Asamblea Legislativa y economía.",
+        "description": "National daily newspaper published in La Paz focused on the Executive branch, Legislative Assembly, and economy.",
     },
     {
         "name": "Los Tiempos",
@@ -52,7 +52,7 @@ BOLIVIAN_SOURCES_CATALOG: list[dict[str, Any]] = [
         "tier": "mainstream",
         "department": "Cochabamba",
         "scrape_strategy": "html",
-        "description": "Diario matutino de Cochabamba y referente informativo del eje central de Bolivia.",
+        "description": "Morning newspaper in Cochabamba and central reference for Bolivia's metropolitan axis.",
     },
     {
         "name": "El Diario",
@@ -62,7 +62,7 @@ BOLIVIAN_SOURCES_CATALOG: list[dict[str, Any]] = [
         "tier": "mainstream",
         "department": "La Paz",
         "scrape_strategy": "rss",
-        "description": "Decano de la prensa nacional en La Paz con cobertura de política, economía, sociedad y gremios.",
+        "description": "Bolivia's oldest national newspaper in La Paz covering institutional politics, economy, and labor unions.",
     },
     {
         "name": "Opinión (Cochabamba)",
@@ -72,7 +72,7 @@ BOLIVIAN_SOURCES_CATALOG: list[dict[str, Any]] = [
         "tier": "mainstream",
         "department": "Cochabamba",
         "scrape_strategy": "rss",
-        "description": "Diario de circulación nacional desde Cochabamba con cobertura policial, política, urbana y regional.",
+        "description": "Cochabamba daily newspaper with national reach covering police reports, politics, urban affairs, and regions.",
     },
     {
         "name": "RTP Bolivia",
@@ -82,21 +82,21 @@ BOLIVIAN_SOURCES_CATALOG: list[dict[str, Any]] = [
         "tier": "mainstream",
         "department": "La Paz",
         "scrape_strategy": "rss",
-        "description": "Sistema de Radio y Televisión Popular con fuerte arraigo en barrios de La Paz, El Alto y sectores sociales.",
+        "description": "Popular Radio and Television network with strong roots in La Paz neighborhoods, El Alto, and social organizations.",
     },
     {
-        "name": "ABI (Agencia Boliviana de Información)",
+        "name": "ABI (Bolivian Information Agency)",
         "slug": "abi",
         "url": "https://abi.bo",
         "rss_url": None,
         "tier": "mainstream",
-        "department": "Nacional",
+        "department": "National",
         "scrape_strategy": "html",
-        "description": "Agencia estatal de noticias con información oficial del Órgano Ejecutivo, ministerios y gestión pública.",
+        "description": "Official state news agency reporting on the Executive branch, ministries, and public administration.",
     },
 
     # =========================================================================
-    # 2. MEDIOS DIGITALES INDEPENDIENTES, COYUNTURA Y VERIFICACIÓN (alternative)
+    # 2. INDEPENDENT DIGITAL OUTLETS, ECONOMY & FACT-CHECKING (alternative)
     # =========================================================================
     {
         "name": "Visión 360",
@@ -106,7 +106,7 @@ BOLIVIAN_SOURCES_CATALOG: list[dict[str, Any]] = [
         "tier": "alternative",
         "department": "La Paz",
         "scrape_strategy": "html",
-        "description": "Medio nativo digital de alcance nacional enfocado en coyuntura política, economía, justicia e investigación.",
+        "description": "Digital-native news outlet focused on national political analysis, economy, justice, and investigative reporting.",
     },
     {
         "name": "Urgente.bo",
@@ -116,7 +116,7 @@ BOLIVIAN_SOURCES_CATALOG: list[dict[str, Any]] = [
         "tier": "alternative",
         "department": "La Paz",
         "scrape_strategy": "rss",
-        "description": "Portal digital de noticias de última hora sobre política, ciudades, economía, seguridad y conflictos en Bolivia.",
+        "description": "Fast-paced digital news portal covering politics, urban affairs, economy, security, and social conflicts.",
     },
     {
         "name": "Oxígeno.bo",
@@ -126,7 +126,7 @@ BOLIVIAN_SOURCES_CATALOG: list[dict[str, Any]] = [
         "tier": "alternative",
         "department": "La Paz",
         "scrape_strategy": "rss",
-        "description": "Periódico digital boliviano de seguimiento ágil a la coyuntura política, judicial, económica y social.",
+        "description": "Bolivian digital newspaper tracking political, judicial, economic, and legislative developments.",
     },
     {
         "name": "Brújula Digital",
@@ -136,7 +136,7 @@ BOLIVIAN_SOURCES_CATALOG: list[dict[str, Any]] = [
         "tier": "alternative",
         "department": "La Paz",
         "scrape_strategy": "html",
-        "description": "Portal periodístico independiente de análisis político, fiscalización institucional y coyuntura nacional.",
+        "description": "Independent digital journalism portal focused on political accountability, economy, and institutional oversight.",
     },
     {
         "name": "Eju.tv",
@@ -146,7 +146,7 @@ BOLIVIAN_SOURCES_CATALOG: list[dict[str, Any]] = [
         "tier": "alternative",
         "department": "Santa Cruz",
         "scrape_strategy": "rss",
-        "description": "Plataforma digital y agregador informativo de alta audiencia sobre política, televisión y debates nacionales.",
+        "description": "High-traffic digital news platform and aggregator covering national politics, television clips, and public debates.",
     },
     {
         "name": "Asuntos Centrales",
@@ -156,7 +156,7 @@ BOLIVIAN_SOURCES_CATALOG: list[dict[str, Any]] = [
         "tier": "alternative",
         "department": "Santa Cruz",
         "scrape_strategy": "rss",
-        "description": "Medio digital multimedia de periodismo económico, político y debate ciudadano desde Santa Cruz.",
+        "description": "Multimedia digital outlet specializing in economic journalism, politics, and civic debate from Santa Cruz.",
     },
     {
         "name": "Economy Bolivia",
@@ -164,9 +164,9 @@ BOLIVIAN_SOURCES_CATALOG: list[dict[str, Any]] = [
         "url": "https://www.economy.com.bo",
         "rss_url": None,
         "tier": "alternative",
-        "department": "Nacional",
+        "department": "National",
         "scrape_strategy": "html",
-        "description": "Portal especializado en economía, inflación, finanzas, banca, agroindustria, energía y negocios en Bolivia.",
+        "description": "Specialized portal covering inflation, banking, agribusiness, energy, trade, and corporate news in Bolivia.",
     },
     {
         "name": "Bolivia Verifica",
@@ -174,9 +174,9 @@ BOLIVIAN_SOURCES_CATALOG: list[dict[str, Any]] = [
         "url": "https://boliviaverifica.bo",
         "rss_url": "https://boliviaverifica.bo/feed/",
         "tier": "alternative",
-        "department": "Nacional",
+        "department": "National",
         "scrape_strategy": "rss",
-        "description": "Medio digital dedicado a la verificación de datos (fact-checking), discurso público y desinformación en redes sociales.",
+        "description": "Fact-checking journalism platform verifying public discourse and debunking viral social media misinformation.",
     },
     {
         "name": "HoyBolivia",
@@ -186,7 +186,7 @@ BOLIVIAN_SOURCES_CATALOG: list[dict[str, Any]] = [
         "tier": "alternative",
         "department": "Santa Cruz",
         "scrape_strategy": "html",
-        "description": "Periódico digital de noticias generales, política, seguridad ciudadana y actualidad nacional.",
+        "description": "Digital newspaper covering general national news, politics, citizen security, and urban developments.",
     },
     {
         "name": "Bolivia.com Noticias",
@@ -194,9 +194,9 @@ BOLIVIAN_SOURCES_CATALOG: list[dict[str, Any]] = [
         "url": "https://www.bolivia.com/noticias/",
         "rss_url": "https://www.bolivia.com/rss/noticias/",
         "tier": "alternative",
-        "department": "Nacional",
+        "department": "National",
         "scrape_strategy": "rss",
-        "description": "Portal digital de actualidad boliviana, sociedad, servicios, cultura y deportes.",
+        "description": "General news portal covering Bolivian society, public services, culture, and sports.",
     },
     {
         "name": "Cabildeo Digital",
@@ -206,7 +206,7 @@ BOLIVIAN_SOURCES_CATALOG: list[dict[str, Any]] = [
         "tier": "alternative",
         "department": "La Paz",
         "scrape_strategy": "rss",
-        "description": "Plataforma de investigación periodística, análisis de gestión pública y denuncias ciudadanas.",
+        "description": "Investigative journalism platform covering public governance, democratic debates, and citizen complaints.",
     },
     {
         "name": "Sumando Voces",
@@ -214,9 +214,9 @@ BOLIVIAN_SOURCES_CATALOG: list[dict[str, Any]] = [
         "url": "https://sumandovoces.com.bo",
         "rss_url": "https://sumandovoces.com.bo/feed/",
         "tier": "alternative",
-        "department": "Nacional",
+        "department": "National",
         "scrape_strategy": "rss",
-        "description": "Portal periodístico enfocado en derechos ciudadanos, justicia, sociedad civil y sectores vulnerables.",
+        "description": "Journalistic platform focused on civil society organizations, human rights defenders, and vulnerable groups.",
     },
     {
         "name": "Muy Waso",
@@ -224,9 +224,9 @@ BOLIVIAN_SOURCES_CATALOG: list[dict[str, Any]] = [
         "url": "https://muywaso.com",
         "rss_url": "https://muywaso.com/feed/",
         "tier": "alternative",
-        "department": "Nacional",
+        "department": "National",
         "scrape_strategy": "rss",
-        "description": "Medio digital independiente de crónicas sociales, cultura, derechos humanos y diversidad en Bolivia.",
+        "description": "Independent digital magazine focusing on social chronicles, culture, gender, and underrepresented communities.",
     },
     {
         "name": "La Región",
@@ -234,13 +234,13 @@ BOLIVIAN_SOURCES_CATALOG: list[dict[str, Any]] = [
         "url": "https://www.laregion.bo",
         "rss_url": None,
         "tier": "alternative",
-        "department": "Nacional",
+        "department": "National",
         "scrape_strategy": "html",
-        "description": "Periodismo independiente sobre medio ambiente, ciencia, turismo sostenible, municipios y áreas protegidas.",
+        "description": "Independent environmental and scientific journalism covering protected areas, biodiversity, and municipalities.",
     },
 
     # =========================================================================
-    # 3. REDES DE RADIO, AGENCIAS Y EMISORAS COMUNITARIAS / SINDICALES (community)
+    # 3. COMMUNITY RADIO NETWORKS, SYNDICATES & AGENCIES (community)
     # =========================================================================
     {
         "name": "Red Erbol",
@@ -248,19 +248,19 @@ BOLIVIAN_SOURCES_CATALOG: list[dict[str, Any]] = [
         "url": "https://erbol.com.bo",
         "rss_url": "https://erbol.com.bo/rss.xml",
         "tier": "community",
-        "department": "Nacional",
+        "department": "National",
         "scrape_strategy": "rss",
-        "description": "Educación Radiofónica de Bolivia: red nacional de emisoras con corresponsales en provincias, municipios y áreas urbanas.",
+        "description": "Radiofonic Education of Bolivia: nationwide network of community and regional stations with provincial correspondents.",
     },
     {
-        "name": "ANF (Agencia de Noticias Fides)",
+        "name": "ANF (Fides News Agency)",
         "slug": "anf",
         "url": "https://www.noticiasfides.com",
         "rss_url": None,
         "tier": "community",
-        "department": "Nacional",
+        "department": "National",
         "scrape_strategy": "html",
-        "description": "Agencia informativa histórica de Bolivia con cobertura de política, seguridad, conflictos sociales y justicia.",
+        "description": "Historic Bolivian news agency covering national politics, security, social conflicts, justice, and human rights.",
     },
     {
         "name": "Radio Fides",
@@ -268,9 +268,9 @@ BOLIVIAN_SOURCES_CATALOG: list[dict[str, Any]] = [
         "url": "https://radiofides.com/es/",
         "rss_url": None,
         "tier": "community",
-        "department": "Nacional",
+        "department": "National",
         "scrape_strategy": "html",
-        "description": "Emisora nacional con red de radios departamentales y cobertura de coyuntura política y social.",
+        "description": "Historic national radio network with departmental affiliates covering politics and social issues.",
     },
     {
         "name": "Radio Panamericana",
@@ -278,9 +278,9 @@ BOLIVIAN_SOURCES_CATALOG: list[dict[str, Any]] = [
         "url": "https://panamericana.bo",
         "rss_url": None,
         "tier": "community",
-        "department": "Nacional",
+        "department": "National",
         "scrape_strategy": "html",
-        "description": "Emisora de alcance nacional con noticieros diarios, seguimiento a alcaldías, gremios y debates políticos.",
+        "description": "High-reach national radio station featuring daily news bulletins, municipal oversight, and open civic forums.",
     },
     {
         "name": "Éxito Noticias",
@@ -290,7 +290,7 @@ BOLIVIAN_SOURCES_CATALOG: list[dict[str, Any]] = [
         "tier": "community",
         "department": "La Paz",
         "scrape_strategy": "rss",
-        "description": "Red radial e informativa con cobertura permanente de movilizaciones, magisterio, transporte, policiales y tribunales.",
+        "description": "Radio and digital news network with continuous street-level reporting on teachers, transport, police, and courts.",
     },
     {
         "name": "Radio Kawsachun Coca",
@@ -300,17 +300,17 @@ BOLIVIAN_SOURCES_CATALOG: list[dict[str, Any]] = [
         "tier": "community",
         "department": "Cochabamba",
         "scrape_strategy": "rss",
-        "description": "Emisora y portal de las Seis Federaciones del Trópico de Cochabamba y organizaciones sindicales campesinas.",
+        "description": "Radio and digital outlet of the Six Federations of the Tropics of Cochabamba and agrarian unions.",
     },
     {
-        "name": "FM Bolivia (Yungas / Norte de La Paz)",
+        "name": "FM Bolivia (Yungas / Northern La Paz)",
         "slug": "fm-bolivia",
         "url": "https://fmbolivia.com.bo",
         "rss_url": "https://fmbolivia.com.bo/rss.xml",
         "tier": "community",
         "department": "La Paz",
         "scrape_strategy": "rss",
-        "description": "Medio radial y digital con base en Chulumani/Yungas y cobertura del norte paceño y coyuntura nacional.",
+        "description": "Radio and digital outlet based in Chulumani/Yungas covering northern La Paz provinces and national news.",
     },
     {
         "name": "Radio Kollasuyo (Potosí)",
@@ -320,21 +320,21 @@ BOLIVIAN_SOURCES_CATALOG: list[dict[str, Any]] = [
         "tier": "community",
         "department": "Potosí",
         "scrape_strategy": "rss",
-        "description": "Emisora popular de Potosí con reportes de juntas vecinales, transporte, cooperativas mineras y provincias.",
+        "description": "Grassroots radio station in Potosí reporting on neighborhood councils, transport, mining cooperatives, and provinces.",
     },
     {
-        "name": "Fundación ACLO (Red Sur)",
+        "name": "Fundación ACLO (Southern Network)",
         "slug": "radio-aclo",
         "url": "https://www.aclo.org.bo",
         "rss_url": "https://www.aclo.org.bo/feed/",
         "tier": "community",
         "department": "Chuquisaca",
         "scrape_strategy": "rss",
-        "description": "Red de comunicación comunitaria del sur de Bolivia (Chuquisaca, Potosí y Tarija).",
+        "description": "Popular and indigenous communication network across southern Bolivia (Chuquisaca, Potosí, and Tarija).",
     },
 
     # =========================================================================
-    # 4. PRENSA REGIONAL, DEPARTAMENTAL Y CIUDADES INTERMEDIAS (regional)
+    # 4. REGIONAL, DEPARTMENTAL & INTERMEDIATE CITY PRESS (regional)
     # =========================================================================
     {
         "name": "El Alteño (El Alto)",
@@ -344,7 +344,7 @@ BOLIVIAN_SOURCES_CATALOG: list[dict[str, Any]] = [
         "tier": "regional",
         "department": "La Paz",
         "scrape_strategy": "rss",
-        "description": "Diario de la ciudad de El Alto: juntas vecinales, FEJUVE, COR, gremiales, gestión municipal y seguridad.",
+        "description": "Daily newspaper of El Alto covering neighborhood associations (FEJUVE), gremiales, municipal management, and security.",
     },
     {
         "name": "El Alto Digital",
@@ -354,7 +354,7 @@ BOLIVIAN_SOURCES_CATALOG: list[dict[str, Any]] = [
         "tier": "regional",
         "department": "La Paz",
         "scrape_strategy": "rss",
-        "description": "Portal nativo digital enfocado en los 14 distritos de El Alto, transporte urbano, ferias y sucesos locales.",
+        "description": "Digital portal focused on the 14 districts of El Alto, urban transport, open markets, and local events.",
     },
     {
         "name": "El Día (Santa Cruz)",
@@ -364,7 +364,7 @@ BOLIVIAN_SOURCES_CATALOG: list[dict[str, Any]] = [
         "tier": "regional",
         "department": "Santa Cruz",
         "scrape_strategy": "html",
-        "description": "Periódico de Santa Cruz con cobertura de economía regional, sectores productivos, justicia y política.",
+        "description": "Santa Cruz newspaper covering regional economy, productive sectors, courts, and national politics.",
     },
     {
         "name": "El Mundo (Santa Cruz)",
@@ -374,17 +374,17 @@ BOLIVIAN_SOURCES_CATALOG: list[dict[str, Any]] = [
         "tier": "regional",
         "department": "Santa Cruz",
         "scrape_strategy": "rss",
-        "description": "Diario cruceño enfocado en salud pública, barrios, provincias, producción agropecuaria y seguridad.",
+        "description": "Santa Cruz daily focused on public health (SEDES), urban districts, provinces, agriculture, and security.",
     },
     {
-        "name": "Montero Noticias (Norte Integrado)",
+        "name": "Montero Noticias (Integrated North)",
         "slug": "montero-noticias",
         "url": "https://monteronoticias.com",
         "rss_url": "https://monteronoticias.com/feed/",
         "tier": "regional",
         "department": "Santa Cruz",
         "scrape_strategy": "rss",
-        "description": "Portal informativo de Montero, Warnes, Yapacaní y las provincias del Norte Integrado cruceño.",
+        "description": "Regional news portal covering Montero, Warnes, Yapacaní, and Santa Cruz's Integrated North provinces.",
     },
     {
         "name": "El País (Tarija)",
@@ -394,7 +394,7 @@ BOLIVIAN_SOURCES_CATALOG: list[dict[str, Any]] = [
         "tier": "regional",
         "department": "Tarija",
         "scrape_strategy": "html",
-        "description": "Diario de referencia en Tarija con seguimiento a hidrocarburos, municipios, frontera sur y coyuntura nacional.",
+        "description": "Leading daily newspaper in Tarija tracking hydrocarbons, municipal water/sanitation, southern border, and politics.",
     },
     {
         "name": "La Voz de Tarija",
@@ -404,7 +404,7 @@ BOLIVIAN_SOURCES_CATALOG: list[dict[str, Any]] = [
         "tier": "regional",
         "department": "Tarija",
         "scrape_strategy": "rss",
-        "description": "Periódico digital de Tarija con cobertura de actividades productivas, alcaldía, gobernación y sucesos.",
+        "description": "Digital newspaper in Tarija covering regional commerce, municipal government, and local events.",
     },
     {
         "name": "El Periódico de Tarija",
@@ -414,7 +414,7 @@ BOLIVIAN_SOURCES_CATALOG: list[dict[str, Any]] = [
         "tier": "regional",
         "department": "Tarija",
         "scrape_strategy": "rss",
-        "description": "Diario regional de Tarija con énfasis en finanzas departamentales, IDH, obras públicas y provincias.",
+        "description": "Regional newspaper in Tarija focused on departmental finances, IDH revenues, public works, and provinces.",
     },
     {
         "name": "Yacuiba Noticias (Gran Chaco)",
@@ -424,7 +424,7 @@ BOLIVIAN_SOURCES_CATALOG: list[dict[str, Any]] = [
         "tier": "regional",
         "department": "Tarija",
         "scrape_strategy": "rss",
-        "description": "Medio digital de la Región Autónoma del Gran Chaco (Yacuiba, Villa Montes y Caraparí) y frontera con Argentina.",
+        "description": "Digital outlet of the Gran Chaco Autonomous Region (Yacuiba, Villa Montes, Caraparí) and the Argentine border.",
     },
     {
         "name": "La Patria (Oruro)",
@@ -434,7 +434,7 @@ BOLIVIAN_SOURCES_CATALOG: list[dict[str, Any]] = [
         "tier": "regional",
         "department": "Oruro",
         "scrape_strategy": "rss",
-        "description": "Subdecano de la prensa nacional en Oruro: salud, comercio fronterizo, minería, cultura y municipios del altiplano.",
+        "description": "Historic Oruro newspaper covering public health, border trade, mining, culture, and highland municipalities.",
     },
     {
         "name": "El Fulgor (Oruro)",
@@ -444,7 +444,7 @@ BOLIVIAN_SOURCES_CATALOG: list[dict[str, Any]] = [
         "tier": "regional",
         "department": "Oruro",
         "scrape_strategy": "html",
-        "description": "Periódico digital orureño con cobertura de aduanas, lucha contra el contrabando, seguridad y provincias.",
+        "description": "Oruro digital newspaper covering customs enforcement, anti-smuggling operations, citizen security, and provinces.",
     },
     {
         "name": "El Potosí",
@@ -454,7 +454,7 @@ BOLIVIAN_SOURCES_CATALOG: list[dict[str, Any]] = [
         "tier": "regional",
         "department": "Potosí",
         "scrape_strategy": "html",
-        "description": "Diario de Potosí con cobertura de precios en mercados, transporte, minería, litio y demandas cívicas.",
+        "description": "Reference daily newspaper in Potosí covering market food prices, transport, mining cooperatives, lithium, and civic demands.",
     },
     {
         "name": "La Palabra del Beni",
@@ -464,7 +464,7 @@ BOLIVIAN_SOURCES_CATALOG: list[dict[str, Any]] = [
         "tier": "regional",
         "department": "Beni",
         "scrape_strategy": "html",
-        "description": "Decano de la prensa beniana desde Trinidad con noticias de Riberalta, Guayaramerín, ganadería y navegación fluvial.",
+        "description": "Dean of the Beni press in Trinidad covering Riberalta, Guayaramerín, cattle ranching, and Amazonian river basins.",
     },
     {
         "name": "Sol de Pando",
@@ -474,6 +474,6 @@ BOLIVIAN_SOURCES_CATALOG: list[dict[str, Any]] = [
         "tier": "regional",
         "department": "Pando",
         "scrape_strategy": "rss",
-        "description": "Periódico digital de Cobija y la región amazónica con investigaciones sobre administración pública y fronteras.",
+        "description": "Investigative digital newspaper based in Cobija (Pando) covering public administration and the Amazonian border.",
     },
 ]

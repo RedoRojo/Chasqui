@@ -7,7 +7,6 @@ from app.intelligence.nlp import (
     classify_category,
     compute_embedding,
     cosine_similarity,
-    detect_all_departments,
     detect_department,
     extract_entities,
     generate_summary,
@@ -88,7 +87,7 @@ def recompute_thread_metrics(db: Session, thread: StoryThread) -> None:
         total_articles += max(ev_total, 1)
         mainstream_total += ev.mainstream_count
         non_mainstream_total += ev_non_main
-        if ev.primary_department and ev.primary_department not in depts and ev.primary_department != "Nacional":
+        if ev.primary_department and ev.primary_department not in depts and ev.primary_department != "National":
             depts.append(ev.primary_department)
         for ent in ev.entities or []:
             if ent not in entities:
@@ -120,7 +119,7 @@ def match_or_create_thread(
     embedding: list[float],
     event_date: datetime,
 ) -> tuple[StoryThread, bool]:
-    """Busca un hilo histórico o activo al que pertenezca este evento, o crea uno nuevo."""
+    """Matches an incoming event against historical/active story threads or creates a new thread."""
     threads = db.query(StoryThread).all()
     best_thread: StoryThread | None = None
     best_score = 0.0
@@ -128,7 +127,14 @@ def match_or_create_thread(
     for th in threads:
         sim = cosine_similarity(embedding, th.thread_embedding or [])
         shared_entities = len(set(e.lower() for e in entities) & set(e.lower() for e in (th.key_entities or [])))
-        dept_bonus = 0.07 if (department != "Nacional" and (department == th.primary_department or department in (th.departments_affected or []))) else 0.0
+        dept_bonus = (
+            0.07
+            if (
+                department != "National"
+                and (department == th.primary_department or department in (th.departments_affected or []))
+            )
+            else 0.0
+        )
         cat_bonus = 0.06 if category == th.category else 0.0
         entity_bonus = min(shared_entities * 0.10, 0.25)
         score = sim + dept_bonus + cat_bonus + entity_bonus
@@ -157,7 +163,7 @@ def match_or_create_thread(
         status="active",
         category=category,
         primary_department=department,
-        departments_affected=[department] if department != "Nacional" else ["Nacional"],
+        departments_affected=[department] if department != "National" else ["National"],
         key_entities=entities[:8],
         first_seen_at=ensure_aware(event_date),
         last_updated_at=ensure_aware(event_date),
@@ -179,11 +185,11 @@ def ingest_and_cluster_article(
     category_override: str | None = None,
 ) -> tuple[Article, bool, bool]:
     """
-    Procesa un artículo entrante:
-    - Si ya existe por URL, lo devuelve sin duplicar.
-    - Si es nuevo, extrae metadatos y vector, lo agrupa en un StoryEvent (nuevo o existente)
-      y vincula ese evento a un StoryThread longitudinal (nuevo o en evolución).
-    Retorna: (article, created_new_event, updated_or_created_thread)
+    Processes an incoming article:
+    - Returns existing article if URL is already stored.
+    - Extracts metadata and semantic embedding, clusters it into a StoryEvent
+      (new or existing within ±96h), and chains the event into a longitudinal StoryThread.
+    Returns: (article, created_new_event, updated_or_created_thread)
     """
     existing = db.query(Article).filter(Article.url == url).first()
     if existing:
@@ -211,7 +217,7 @@ def ingest_and_cluster_article(
     db.add(article)
     db.flush()
 
-    # Etapa 1: Buscar StoryEvent cercano en el tiempo (±96 horas)
+    # Stage 1: Search for a recent StoryEvent within ±96 hours
     window_start = pub_dt - timedelta(hours=96)
     window_end = pub_dt + timedelta(hours=96)
     recent_events = (
@@ -225,7 +231,7 @@ def ingest_and_cluster_article(
     for ev in recent_events:
         sim = cosine_similarity(embedding, ev.centroid_embedding or [])
         shared_ent = len(set(e.lower() for e in entities) & set(e.lower() for e in (ev.entities or [])))
-        dept_bonus = 0.06 if (dept != "Nacional" and dept == ev.primary_department) else 0.0
+        dept_bonus = 0.06 if (dept != "National" and dept == ev.primary_department) else 0.0
         cat_bonus = 0.05 if category == ev.category else 0.0
         score = sim + min(shared_ent * 0.09, 0.22) + dept_bonus + cat_bonus
         if score > best_event_score:
@@ -242,7 +248,7 @@ def ingest_and_cluster_article(
             recompute_thread_metrics(db, thread)
         return article, False, True
 
-    # Etapa 2: Es un suceso nuevo -> Vincular a un StoryThread existente o crear uno nuevo
+    # Stage 2: Create a new StoryEvent and link it to an evolving or new StoryThread
     thread, _ = match_or_create_thread(
         db=db,
         title=title.strip(),
