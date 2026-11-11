@@ -115,13 +115,13 @@ export const BOLIVIA_DEPARTMENTS = [
 
 export const NEWS_CATEGORIES = [
   "Todas",
+  "Justicia y Seguridad Ciudadana",
+  "Política y Gestión Pública",
+  "Economía y Abastecimiento",
+  "Conflictos Sociales",
+  "Salud y Servicios Básicos",
   "Medio Ambiente y Territorio",
   "Minería y Extractivismo",
-  "Conflictos Sociales",
-  "Economía y Abastecimiento",
-  "Justicia y Derechos Humanos",
-  "Salud y Servicios Básicos",
-  "Política y Gestión Pública",
 ] as const;
 
 export const TIER_LABELS: Record<SourceTier, string> = {

@@ -81,9 +81,9 @@ export default function HomePage() {
     setScraping(true);
     setScrapeMessage(null);
     try {
-      const result = await triggerDailyScrape(false);
+      const result = await triggerDailyScrape(true);
       setScrapeMessage(
-        `Escaneo completado (${result.sources_scanned} fuentes revisadas): +${result.new_articles} notas nuevas, +${result.new_events} eventos agregados a las líneas de tiempo.`
+        `Escaneo en vivo completado (${result.sources_scanned} fuentes bolivianas revisadas): +${result.new_articles} notas nuevas, +${result.new_events} eventos agregados a las líneas de tiempo.`
       );
       await loadData();
     } catch {

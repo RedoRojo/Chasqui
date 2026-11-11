@@ -192,6 +192,15 @@ def list_threads(
                 scored.append(((1.0 if lexical_hit else 0.0) + sem_sim, t))
         scored.sort(key=lambda item: item[0], reverse=True)
         threads = [t for _, t in scored]
+    else:
+        threads.sort(
+            key=lambda t: (
+                1 if t.events_count >= 2 or t.articles_count >= 2 else 0,
+                t.articles_count,
+                t.last_updated_at.timestamp() if t.last_updated_at else 0.0,
+            ),
+            reverse=True,
+        )
 
     return [StoryThreadOut.model_validate(t) for t in threads]
 
@@ -335,7 +344,7 @@ def create_source(payload: SourceCreate, db: Session = Depends(get_db)) -> Sourc
 
 @app.post("/api/scrape/run", response_model=ScrapeRunOut)
 def trigger_scrape(
-    live_network: bool = Query(default=False, description="Intentar conexión en vivo a RSS/portales además de la cola diaria"),
+    live_network: bool = Query(default=True, description="Intentar conexión en vivo a RSS/portales de Bolivia"),
     db: Session = Depends(get_db),
 ) -> ScrapeRunOut:
     run = run_daily_scan(db, trigger="manual", try_live_network=live_network)

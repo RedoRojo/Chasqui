@@ -5,10 +5,11 @@ from app.intelligence.clustering import recompute_event_metrics, recompute_threa
 from app.intelligence.nlp import compute_embedding, generate_summary
 from app.models import Article, ScrapeRun, Source, StoryEvent, StoryThread
 from app.scraper.catalog import BOLIVIAN_SOURCES_CATALOG
+from app.scraper.engine import run_daily_scan
 
 
-def seed_database(db: Session) -> None:
-    # 1. Seed Sources
+def seed_database(db: Session, run_live_after_seed: bool = True) -> None:
+    # 1. Sincronizar las 42 fuentes del catálogo nacional, digital, comunitario y regional
     existing_sources = {s.slug: s for s in db.query(Source).all()}
     for src_data in BOLIVIAN_SOURCES_CATALOG:
         if src_data["slug"] not in existing_sources:
@@ -16,9 +17,17 @@ def seed_database(db: Session) -> None:
             db.add(src)
             db.flush()
             existing_sources[src.slug] = src
+        else:
+            src = existing_sources[src_data["slug"]]
+            src.name = src_data["name"]
+            src.url = src_data["url"]
+            src.rss_url = src_data["rss_url"]
+            src.tier = src_data["tier"]
+            src.department = src_data["department"]
+            src.scrape_strategy = src_data["scrape_strategy"]
+            src.description = src_data["description"]
     db.commit()
 
-    # Check if threads already exist
     if db.query(StoryThread).count() > 0:
         return
 
@@ -26,112 +35,192 @@ def seed_database(db: Session) -> None:
 
     threads_blueprint = [
         {
-            "title": "Avance de la minería aurífera y contaminación por mercurio en el río Beni y Parque Madidi",
-            "slug": "mineria-aurifera-mercurio-rio-beni-madidi",
+            "title": "Caso 'Maletas', aprehensión del expresidente del TDJ de Santa Cruz Aldo Quezada y reestructuración judicial",
+            "slug": "caso-maletas-aprehension-aldo-quezada-tdj-santa-cruz",
             "status": "active",
-            "category": "Minería y Extractivismo",
-            "primary_department": "La Paz",
-            "departments_affected": ["La Paz", "Beni", "Pando"],
-            "key_entities": ["Parque Nacional Madidi", "Río Beni", "CPEMB", "AJAM", "Defensoría del Pueblo"],
+            "category": "Justicia y Seguridad Ciudadana",
+            "primary_department": "Santa Cruz",
+            "departments_affected": ["Santa Cruz", "Chuquisaca", "La Paz"],
+            "key_entities": ["Caso Maletas", "TDJ Santa Cruz", "FELCN", "Fiscalía", "TSJ"],
             "current_summary": (
-                "Pueblos indígenas tacanas, tsimanes y mosetenes documentaron niveles críticos de mercurio y la expansión "
-                "de dragas auríferas en los ríos Beni, Madre de Dios y Tuichi. Medios de investigación y radios comunitarias "
-                "lideran el seguimiento ante la falta de operativos permanentes del Estado."
+                "La investigación fiscal y policial por el denominado caso 'Maletas' y presunto tráfico de sustancias controladas "
+                "derivó en allanamientos en Santa Cruz, el hallazgo de cajas fuertes vacías y la aprehensión del expresidente del "
+                "Tribunal Departamental de Justicia (TDJ), Aldo Quezada, en medio de cambios en la Sala Plena del TSJ."
             ),
             "events": [
                 {
-                    "days_ago": 42,
-                    "title": "Estudio comunitario revela altos niveles de mercurio en comunidades indígenas del río Beni",
+                    "days_ago": 14,
+                    "title": "Abren investigación fiscal por presunta red de encubrimiento y cobros irregulares en el caso 'Maletas'",
                     "summary": (
-                        "Muestras tomadas en comunidades ribereñas del pueblo Ese Ejja y Tsimane superan hasta siete veces "
-                        "el límite permitido por la OMS, según reportes difundidos por periodismo de investigación ambiental."
+                        "Medios cruceños y portales digitales revelaron indicios sobre movimientos patrimoniales y resoluciones "
+                        "judiciales observadas en torno al caso 'Maletas' en Santa Cruz."
                     ),
-                    "department": "Beni",
+                    "department": "Santa Cruz",
                     "articles": [
                         {
-                            "source_slug": "revista-nomadas",
-                            "title": "El veneno invisible del oro: comunidades del río Beni superan en 700% el límite de mercurio",
-                            "url": "https://revistanomadas.com/mercurio-comunidades-rio-beni-investigacion",
+                            "source_slug": "asuntos-centrales",
+                            "title": "Fiscalía amplía pesquisas sobre operadores judiciales vinculados al caso Maletas en Santa Cruz",
+                            "url": "https://asuntoscentrales.com/fiscalia-amplia-pesquisas-caso-maletas-santa-cruz",
                             "content": (
-                                "Una investigación de campo en comunidades ribereñas de los ríos Beni y Quiquibey documentó "
-                                "que mujeres y niños indígenas presentan concentraciones alarmantes de metilmercurio por el consumo "
-                                "de pescado contaminado por la actividad aurífera aguas arriba."
+                                "Comisiones de fiscales de materia y agentes especiales iniciaron el cruce de llamadas y "
+                                "declaraciones juradas de exautoridades judiciales del distrito cruceño."
                             ),
                         },
                         {
-                            "source_slug": "la-region",
-                            "title": "Pueblos indígenas de la Amazonía boliviana exigen freno al uso de mercurio en la minería del oro",
-                            "url": "https://www.laregion.bo/pueblos-indigenas-amazonia-exigen-freno-mercurio",
+                            "source_slug": "oxigeno-bo",
+                            "title": "Cuestionan actuación de vocales departamentales y piden auditoría del Consejo de la Magistratura",
+                            "url": "https://oxigeno.bo/justicia/cuestionan-actuacion-vocales-auditoria-magistratura",
                             "content": (
-                                "Organizaciones indígenas del norte de La Paz y Beni presentaron ante relatores internacionales "
-                                "evidencia sobre la degradación de las cuencas amazónicas y la ausencia de controles sobre la importación de mercurio."
+                                "Legisladores y colegios de abogados exigieron transparentar los sorteos de causas sensibles "
+                                "vinculadas a narcotráfico y legitimación de ganancias ilícitas."
                             ),
                         },
                     ],
                 },
                 {
-                    "days_ago": 18,
-                    "title": "Guardaparques y capitanías denuncian incursión de balsas mineras en zona de amortiguamiento del Madidi",
+                    "days_ago": 3,
+                    "title": "Movimientos en la Sala Plena del TSJ en Sucre y operativos de allanamiento a exautoridades del TDJ",
                     "summary": (
-                        "Radios comunitarias y agencias independientes reportan la presencia de nuevas cuadrillas y dragas en el "
-                        "sector alto del río Tuichi y Guanay sin consulta previa libre e informada."
+                        "Mientras en Sucre se recompone la Sala Plena del Tribunal Supremo de Justicia, la FELCN y la Fiscalía "
+                        "ejecutaron allanamientos en inmuebles del expresidente del TDJ de Santa Cruz."
+                    ),
+                    "department": "Santa Cruz",
+                    "articles": [
+                        {
+                            "source_slug": "el-deber",
+                            "title": "Fiscalía y FELCN allanan domicilio de exautoridad judicial en Santa Cruz dentro del caso Maletas",
+                            "url": "https://eldeber.com.bo/santa-cruz/fiscalia-felcn-allanan-domicilio-caso-maletas-antecedente",
+                            "content": (
+                                "Los efectivos secuestraron documentación, equipos informáticos y verificaron la existencia de "
+                                "cajas fuertes vacías en la residencia intervenida."
+                            ),
+                        },
+                        {
+                            "source_slug": "radio-fides",
+                            "title": "Sala Plena del TSJ sesiona en Sucre en medio de acefalías y procesos contra exvocales",
+                            "url": "https://radiofides.com/politica/sala-plena-tsj-sesiona-sucre-procesos-exvocales",
+                            "content": (
+                                "Magistrados del Tribunal Supremo de Justicia analizaron la situación de los tribunales "
+                                "departamentales y la continuidad administrativa del Órgano Judicial."
+                            ),
+                        },
+                    ],
+                },
+            ],
+        },
+        {
+            "title": "Conflicto del Magisterio y la COB por transferencia de institutos técnicos y pliego sectorial",
+            "slug": "conflicto-magisterio-cob-transferencia-institutos-tecnicos",
+            "status": "active",
+            "category": "Conflictos Sociales",
+            "primary_department": "Nacional",
+            "departments_affected": ["La Paz", "Potosí", "Cochabamba", "Santa Cruz"],
+            "key_entities": ["Magisterio Rural", "COB", "Asamblea Legislativa"],
+            "current_summary": (
+                "Tras protestas y amenazas de bloqueo de carreteras contra el anteproyecto para transferir los institutos técnicos "
+                "y tecnológicos a las gobernaciones, el Gobierno y el Magisterio Rural firmaron un acuerdo para suspender la medida, "
+                "mientras la COB convoca a un ampliado nacional."
+            ),
+            "events": [
+                {
+                    "days_ago": 10,
+                    "title": "Magisterio y rectores de institutos técnicos se declaran en emergencia contra proyecto de descentralización",
+                    "summary": (
+                        "Sindicatos de maestros urbanos y rurales denunciaron que el traspaso de institutos técnicos a las "
+                        "gobernaciones pondría en riesgo los ítems y el presupuesto educativo."
                     ),
                     "department": "La Paz",
                     "articles": [
                         {
-                            "source_slug": "erbol",
-                            "title": "Corresponsales en Norte de La Paz alertan sobre nuevas dragas cerca del área protegida Madidi",
-                            "url": "https://erbol.com.bo/norte-la-paz-alertan-dragas-area-protegida-madidi",
+                            "source_slug": "exito-noticias",
+                            "title": "Magisterio advierte con movilizaciones nacionales si no se retira el proyecto sobre institutos técnicos",
+                            "url": "https://exitonoticias.com.bo/magisterio-advierte-movilizaciones-institutos-tecnicos",
                             "content": (
-                                "Desde Guanay y Rurrenabaque, dirigentes comunales denunciaron a través de la Red Erbol que "
-                                "operadores auríferos abrieron sendas y trasladaron maquinaria pesada hacia riberas protegidas."
+                                "Dirigentes de las federaciones departamentales de maestros señalaron que las gobernaciones "
+                                "carecen de recursos para sostener la educación superior técnica."
                             ),
                         },
                         {
-                            "source_slug": "anf",
-                            "title": "Defensoría del Pueblo pide a la AJAM informe sobre derechos mineros otorgados cerca de áreas protegidas",
-                            "url": "https://www.noticiasfides.com/nacional/defensoria-pide-informe-ajam-areas-protegidas",
+                            "source_slug": "radio-kollasuyo",
+                            "title": "Docentes y estudiantes de institutos tecnológicos en Potosí marchan rechazando transferencia",
+                            "url": "https://radiokollasuyo.bo/docentes-estudiantes-institutos-potosi-rechazan-transferencia",
                             "content": (
-                                "La Defensoría del Pueblo reiteró que ninguna cuadrícula minera puede vulnerar la intangibilidad "
-                                "de los territorios indígenas ni poner en riesgo las fuentes de agua de la cuenca amazónica."
+                                "En la Villa Imperial, delegaciones estudiantiles y sindicales recorrieron el centro exigiendo "
+                                "que el Ministerio de Educación garantice el financiamiento estatal."
+                            ),
+                        },
+                    ],
+                },
+            ],
+        },
+        {
+            "title": "Inflación de alimentos, precio del pan, tarifas de transporte y emergencia financiera en Alcaldías (AMB)",
+            "slug": "inflacion-alimentos-precio-pan-emergencia-financiera-alcaldias",
+            "status": "active",
+            "category": "Economía y Abastecimiento",
+            "primary_department": "Nacional",
+            "departments_affected": ["La Paz", "Potosí", "Cochabamba", "Santa Cruz", "Tarija"],
+            "key_entities": ["INE", "AMB", "Defensoría del Pueblo", "EMAPA"],
+            "current_summary": (
+                "El incremento de costos en productos de la canasta familiar (como el pan en regiones, verduras y carne), sumado a "
+                "la caída de ingresos por IDH y el encarecimiento de insumos para obras públicas, llevó a la Asociación de Municipalidades "
+                "de Bolivia (AMB) y juntas vecinales a exigir medidas económicas de urgencia."
+            ),
+            "events": [
+                {
+                    "days_ago": 12,
+                    "title": "INE reporta inflación acumulada de 6,03% impulsada por alimentos, almuerzo popular y transporte",
+                    "summary": (
+                        "El índice de precios al consumidor reflejó presiones en papa, cebolla, tomate, carne de res y "
+                        "transporte urbano en las principales ciudades del país."
+                    ),
+                    "department": "Nacional",
+                    "articles": [
+                        {
+                            "source_slug": "economy-bolivia",
+                            "title": "Inflación acumulada llega al 6,03%: alimentos y costos logísticos presionan el bolsillo familiar",
+                            "url": "https://www.economy.com.bo/economia/inflacion-acumulada-alimentos-costos-logisticos",
+                            "content": (
+                                "Analistas económicos advierten que el costo de reposición de insumos importados y la logística "
+                                "del transporte continúan trasladándose a los precios minoristas en mercados."
                             ),
                         },
                         {
-                            "source_slug": "guardiana",
-                            "title": "Vacíos de fiscalización permiten que cooperativas auríferas operen sin licencia ambiental en el norte paceño",
-                            "url": "https://guardiana.com.bo/investigacion/vacios-fiscalizacion-cooperativas-auriferas-norte-paceno",
+                            "source_slug": "el-alteno",
+                            "title": "Amas de casa y gremiales en ferias de El Alto reclaman controles contra el agio y especulación",
+                            "url": "https://www.elalteno.com.bo/ferias-el-alto-reclaman-controles-agio-especulacion",
                             "content": (
-                                "Una revisión de registros públicos muestra que más del 75% de las operaciones auríferas en los ríos "
-                                "del norte de La Paz carecen de estudio de evaluación de impacto ambiental actualizado."
+                                "En las ferias de la 16 de Julio y Río Seco, comerciantes y vecinos reportaron variaciones "
+                                "semanales en abarrotes, pan y verduras traídas desde los valles."
                             ),
                         },
                     ],
                 },
                 {
                     "days_ago": 2,
-                    "title": "Cabildo de comunidades amazónicas exige auditoría ambiental y suspensión de trámites mineros en ríos",
+                    "title": "Alcaldes de capitales y El Alto (AMB) dan ultimátum por reajuste de costos de obras y liquidez municipal",
                     "summary": (
-                        "Representantes de 24 comunidades del norte de La Paz y Beni se declararon en emergencia permanente "
-                        "y otorgaron un plazo de 15 días para la instalación de una comisión interinstitucional en territorio."
+                        "La Asociación de Municipalidades de Bolivia advirtió riesgo de paralización de obras y servicios de "
+                        "aseo urbano y salud si no se aprueba un decreto de reajuste de precios y alivio financiero."
                     ),
                     "department": "La Paz",
                     "articles": [
                         {
-                            "source_slug": "palabra-del-beni",
-                            "title": "Comunidades de Rurrenabaque y San Buenaventura se declaran en emergencia por contaminación del río Beni",
-                            "url": "https://lapalabradelbeni.com/rurrenabaque-san-buenaventura-emergencia-rio-beni",
+                            "source_slug": "red-uno",
+                            "title": "Alcaldes de la AMB piden decreto de reajuste de precios ante rescisión de contratos de obras",
+                            "url": "https://www.reduno.com.bo/noticias/alcaldes-amb-decreto-reajuste-precios-obras-municipales",
                             "content": (
-                                "Autoridades comunales y operadores de ecoturismo advirtieron que la turbidez del agua y el uso de "
-                                "mercurio amenazan tanto la salud humana como la economía sostenible de las comunidades amazónicas."
+                                "Los burgomaestres de las nueve capitales más El Alto señalaron que las empresas constructoras "
+                                "frenaron proyectos por el alza de materiales e insumos."
                             ),
                         },
                         {
-                            "source_slug": "sumando-voces",
-                            "title": "Mujeres indígenas lideran monitoreo comunitario del agua frente al avance extractivo en la Amazonía",
-                            "url": "https://sumandovoces.com.bo/mujeres-indigenas-monitoreo-comunitario-agua-amazonia",
+                            "source_slug": "el-periodico-tarija",
+                            "title": "Municipios de Tarija alertan caída crítica de ingresos por IDH y piden reprogramación financiera",
+                            "url": "https://elperiodico.com.bo/municipios-tarija-alerta-caida-idh-reprogramacion",
                             "content": (
-                                "Brigadas de mujeres indígenas capacitaron a jóvenes comunarios para registrar con georreferenciación "
-                                "los puntos de desmonte ribereño y descargas de sedimentos."
+                                "Gobiernos municipales tarijeños advirtieron dificultades para cubrir contrapartes de proyectos "
+                                "concurrentes, desayuno escolar y mantenimiento vial."
                             ),
                         },
                     ],
@@ -139,356 +228,43 @@ def seed_database(db: Session) -> None:
             ],
         },
         {
-            "title": "Defensa comunitaria de la Reserva Nacional de Tariquía frente a proyectos de exploración petrolera",
-            "slug": "defensa-reserva-nacional-tariquia-exploracion-petrolera",
+            "title": "Tensión en el Trópico de Cochabamba: operativos policiales, retenes de UMOPAR y protesta de federaciones cocaleras",
+            "slug": "tension-tropico-cochabamba-operativos-policiales-umopar-cocaleros",
             "status": "active",
-            "category": "Medio Ambiente y Territorio",
-            "primary_department": "Tarija",
-            "departments_affected": ["Tarija"],
-            "key_entities": ["Reserva de Tariquía", "YPFB", "SERNAP", "CONTIOCAP", "Tribunal Agroambiental"],
+            "category": "Conflictos Sociales",
+            "primary_department": "Cochabamba",
+            "departments_affected": ["Cochabamba"],
+            "key_entities": ["Seis Federaciones del Trópico", "UMOPAR", "FELCN"],
             "current_summary": (
-                "Comunarios de Chiquiacá y Tariquía en el departamento de Tarija sostienen vigilias y acciones legales "
-                "contra el ingreso de actividades hidrocarburíferas al área protegida que abastece de agua y biodiversidad al valle central y Chaco."
+                "La ejecución de operativos antidroga y el control de puestos policiales en Villa Tunari y Shinahota generaron "
+                "enfrentamientos entre afiliados de las Seis Federaciones del Trópico y efectivos de UMOPAR y la Policía."
             ),
             "events": [
                 {
-                    "days_ago": 35,
-                    "title": "Subcentrales campesinas de Tariquía denuncian reactivación de cronograma de ingreso al bloque exploratorio",
+                    "days_ago": 7,
+                    "title": "Sindicatos del Trópico declaran estado de alerta ante despliegue de patrullas de UMOPAR",
                     "summary": (
-                        "Medios regionales de Tarija y radios del sur reportaron el rechazo de las comunidades locales a los "
-                        "intentos de socialización fragmentada para el ingreso de equipos técnicos a la reserva."
-                    ),
-                    "department": "Tarija",
-                    "articles": [
-                        {
-                            "source_slug": "el-pais-tarija",
-                            "title": "Chiquiacá se declara en estado de emergencia ante posible ingreso de maquinaria hacia Tariquía",
-                            "url": "https://www.elpais.bo/tarija/chiquiaca-estado-emergencia-reserva-tariquia",
-                            "content": (
-                                "Productores apícolas y agrícolas del cantón Chiquiacá instalaron una asamblea permanente "
-                                "asegurando que la perforación de pozos en zona de recarga hídrica afectará de manera irreversible sus vertientes."
-                            ),
-                        },
-                        {
-                            "source_slug": "radio-aclo",
-                            "title": "Comunidades de Padcaya y Entre Ríos ratifican defensa del agua en la Reserva de Tariquía",
-                            "url": "https://aclo.org.bo/tarija-comunidades-padcaya-entre-rios-defensa-agua-tariquia",
-                            "content": (
-                                "A través de Radio ACLO Tarija, dirigentes comunales denunciaron presiones y divisiones internas "
-                                "promovidas para validar autorizaciones de ingreso al área protegida."
-                            ),
-                        },
-                    ],
-                },
-                {
-                    "days_ago": 11,
-                    "title": "Presentan acción ambiental preventiva y denuncian hostigamiento a defensores de Tariquía",
-                    "summary": (
-                        "Colectivos ambientales, instituciones de derechos humanos y comunarios presentaron un recurso ante la "
-                        "jurisdicción agroambiental exigiendo medidas cautelares para resguardar la reserva."
-                    ),
-                    "department": "Tarija",
-                    "articles": [
-                        {
-                            "source_slug": "anf",
-                            "title": "Defensores de Tariquía denuncian procesos penales contra comunarios que mantienen vigilia pacífica",
-                            "url": "https://www.noticiasfides.com/sociedad/defensores-tariquia-denuncian-procesos-vigilia",
-                            "content": (
-                                "Representantes de CONTIOCAP y comunarios de Chiquiacá denunciaron en conferencia de prensa que "
-                                "al menos ocho dirigentes campesinos enfrentan notificaciones judiciales por defender el área protegida."
-                            ),
-                        },
-                        {
-                            "source_slug": "la-region",
-                            "title": "Tariquía: por qué el bosque nublado de Tarija es vital para el agua del sur de Bolivia",
-                            "url": "https://www.laregion.bo/tariquia-bosque-nublado-vital-agua-sur-bolivia",
-                            "content": (
-                                "Especialistas en hidrología explican que la Reserva Nacional de Flora y Fauna Tariquía regula el "
-                                "régimen hídrico de las cuencas Bermejo y Grande de Tarija."
-                            ),
-                        },
-                        {
-                            "source_slug": "cabildeo-digital",
-                            "title": "Mujeres defensoras de Tariquía cumplen semanas de guardia en caminos comunales",
-                            "url": "https://www.cabildeodigital.com/mujeres-defensoras-tariquia-guardia-caminos",
-                            "content": (
-                                "Con turnos rotativos día y noche, las mujeres del cantón Chiquiacá encabezan la resistencia pacífica "
-                                "exigiendo respeto al Acuerdo de Escazú."
-                            ),
-                        },
-                    ],
-                },
-            ],
-        },
-        {
-            "title": "Crisis de incendios forestales, desmontes y emergencia hídrica posfuego en la Chiquitanía",
-            "slug": "crisis-incendios-forestales-emergencia-hidrica-chiquitania",
-            "status": "active",
-            "category": "Medio Ambiente y Territorio",
-            "primary_department": "Santa Cruz",
-            "departments_affected": ["Santa Cruz", "Beni"],
-            "key_entities": ["Chiquitanía", "ABT", "INRA", "SENAMHI", "Defensoría del Pueblo"],
-            "current_summary": (
-                "Tras meses de incendios forestales que devastaron millones de hectáreas de bosque seco chiquitano y Amazonía, "
-                "las comunidades indígenas y campesinas enfrentan escasez de agua potable, pérdida de medios de vida y reclaman la abrogación de normas que incentivan el desmonte."
-            ),
-            "events": [
-                {
-                    "days_ago": 50,
-                    "title": "Bomberos voluntarios y municipios chiquitanos alertan desborde de focos de calor en San Ignacio y Concepción",
-                    "summary": (
-                        "Antes de la declaratoria nacional, reportes locales desde San Ignacio de Velasco, Concepción y Ascensión de Guarayos "
-                        "advertían que el fuego había ingresado a reservas forestales y territorios indígenas."
-                    ),
-                    "department": "Santa Cruz",
-                    "articles": [
-                        {
-                            "source_slug": "la-region",
-                            "title": "Comunidades de Monte Verde y Lomerío combaten el fuego con herramientas manuales ante falta de apoyo aéreo",
-                            "url": "https://www.laregion.bo/comunidades-monte-verde-lomerio-combaten-fuego",
-                            "content": (
-                                "Caciques indígenas y cuadrillas comunales pidieron auxilio urgente tras cinco días de incendios "
-                                "continuos que destruyeron sistemas de tuberías de agua y cultivos de yuca y plátano."
-                            ),
-                        },
-                        {
-                            "source_slug": "el-deber",
-                            "title": "Gobernación y alcaldías de la Chiquitanía piden declaratoria de desastre nacional por incendios",
-                            "url": "https://eldeber.com.bo/santa-cruz/alcaldias-chiquitania-declaratoria-desastre-incendios",
-                            "content": (
-                                "El humo denso obligó a suspender vuelos y clases presenciales mientras más de 40 comunidades "
-                                "rurales reportaron daños directos en sus fuentes de abastecimiento."
-                            ),
-                        },
-                    ],
-                },
-                {
-                    "days_ago": 24,
-                    "title": "Investigación identifica que más del 60% de áreas quemadas coincide con desmontes no autorizados y tierras en conflicto",
-                    "summary": (
-                        "Cruces de mapas satelitales con catastros de la ABT e INRA revelan patrones recurrentes de quema "
-                        "para ampliación de frontera agropecuaria y especulación de tierras."
-                    ),
-                    "department": "Santa Cruz",
-                    "articles": [
-                        {
-                            "source_slug": "revista-nomadas",
-                            "title": "Mapa de la devastación: cómo el fuego sigue la ruta de los desmontes ilegales en Santa Cruz y Beni",
-                            "url": "https://revistanomadas.com/mapa-devastacion-fuego-desmontes-ilegales-santa-cruz-beni",
-                            "content": (
-                                "El análisis geoespacial de los polígonos incendiados demuestra que las multas administrativas "
-                                "por hectárea desmontada siguen siendo mínimas frente a la rentabilidad del tráfico de tierras."
-                            ),
-                        },
-                        {
-                            "source_slug": "guardiana",
-                            "title": "Sanciones de la ABT por quemas ilegales apenas alcanzan a una fracción de los procesos iniciados",
-                            "url": "https://guardiana.com.bo/medio-ambiente/sanciones-abt-quemas-ilegales-fraccion",
-                            "content": (
-                                "Datos oficiales solicitados por acceso a la información revelan cuellos de botella en la "
-                                "ejecución coactiva de multas por incendios forestales de gestiones pasadas."
-                            ),
-                        },
-                        {
-                            "source_slug": "los-tiempos",
-                            "title": "Organizaciones civiles y colegios profesionales exigen abrogar paquete de leyes incendiarias",
-                            "url": "https://www.lostiempos.com/actualidad/pais/organizaciones-exigen-abrogar-leyes-incendiarias",
-                            "content": (
-                                "En Cochabamba, Santa Cruz y La Paz se realizaron movilizaciones ciudadanas demandando sanciones "
-                                "penales efectivas y restauración ecológica con presupuesto garantizado."
-                            ),
-                        },
-                    ],
-                },
-                {
-                    "days_ago": 4,
-                    "title": "Crisis posfuego: 38 comunidades chiquitanas sufren contaminación de atajados por ceniza y escasez de agua",
-                    "summary": (
-                        "Con las primeras lluvias, el arrastre de ceniza y materia orgánica quemada contaminó represas comunales "
-                        "y vertientes en San Matías, Roboré y San Ignacio, situación poco visibilizada tras apagarse las llamas."
-                    ),
-                    "department": "Santa Cruz",
-                    "articles": [
-                        {
-                            "source_slug": "muy-waso",
-                            "title": "Cuando se apagan las cámaras: mujeres chiquitanas enfrentan la crisis del agua contaminada por cenizas",
-                            "url": "https://muywaso.com/mujeres-chiquitanas-crisis-agua-contaminada-cenizas",
-                            "content": (
-                                "Aunque los titulares televisivos dejaron de hablar de la Chiquitanía tras las lluvias, en las "
-                                "comunidades indígenas el agua de los atajados se volvió negra y provoca afecciones gastrointestinales y dérmicas."
-                            ),
-                        },
-                        {
-                            "source_slug": "erbol",
-                            "title": "Corresponsalía en San Ignacio reporta que cisternas municipales no abastecen a comunidades alejadas",
-                            "url": "https://erbol.com.bo/santa-cruz/cisternas-no-abastecen-comunidades-chiquitanas-posincendio",
-                            "content": (
-                                "Autoridades comunales piden filtros potabilizadores, rehabilitación de pozos perforados y semillas "
-                                "para recuperar los chacos perdidos durante los incendios."
-                            ),
-                        },
-                    ],
-                },
-            ],
-        },
-        {
-            "title": "Contaminación minera y riesgo en diques de colas en la cuenca alta del río Pilcomayo",
-            "slug": "contaminacion-minera-diques-colas-cuenca-rio-pilcomayo",
-            "status": "active",
-            "category": "Minería y Extractivismo",
-            "primary_department": "Potosí",
-            "departments_affected": ["Potosí", "Chuquisaca", "Tarija"],
-            "key_entities": ["Río Pilcomayo", "COMIBOL", "Cerro Rico", "Defensoría del Pueblo"],
-            "current_summary": (
-                "Comunidades campesinas e indígenas de Potosí, Chuquisaca y el Chaco tarijeño alertan sobre filtraciones "
-                "y falta de mantenimiento en diques de colas mineros que descargan metales pesados hacia afluentes del río Pilcomayo."
-            ),
-            "events": [
-                {
-                    "days_ago": 29,
-                    "title": "Alerta en municipios de Potosí y Chuquisaca por turbidez y residuos minerales en afluentes del Pilcomayo",
-                    "summary": (
-                        "Radios comunitarias del sur reportaron cambios de coloración y mortandad de peces en tramos de la "
-                        "cuenca alta y media del río Pilcomayo, pidiendo auditoría a los ingenios mineros."
-                    ),
-                    "department": "Potosí",
-                    "articles": [
-                        {
-                            "source_slug": "radio-pio-xii",
-                            "title": "Comunarios de la ribera del Pilcomayo denuncian descargas nocturnas de ingenios en Potosí",
-                            "url": "https://radiopioxii.org/comunarios-ribera-pilcomayo-denuncian-descargas-ingenios",
-                            "content": (
-                                "Agricultores de los municipios de Betanzos y Yocalla alertaron a Radio Pío XII que las aguas "
-                                "presentan espuma y sedimentos plomizos que inutilizan los canales de riego comunitarios."
-                            ),
-                        },
-                        {
-                            "source_slug": "el-potosi",
-                            "title": "Piden inspección técnica urgente a diques de colas en la ribera de los ingenios potosinos",
-                            "url": "https://elpotosi.net/local/inspeccion-tecnica-diques-colas-ingenios-potosi",
-                            "content": (
-                                "Técnicos ambientales advirtieron que el inicio de la época de lluvias incrementa el riesgo de "
-                                "rebalse en estructuras de almacenamiento de colas que operan al límite de su capacidad."
-                            ),
-                        },
-                    ],
-                },
-                {
-                    "days_ago": 6,
-                    "title": "Pueblo Weenhayek y regantes de Chuquisaca exigen monitoreo trinacional independiente del río Pilcomayo",
-                    "summary": (
-                        "Representantes indígenas de Villa Montes y regantes de Chuquisaca reclamaron que los informes de "
-                        "calidad del agua incluyan muestreos participativos en época de crecida."
-                    ),
-                    "department": "Chuquisaca",
-                    "articles": [
-                        {
-                            "source_slug": "correo-del-sur",
-                            "title": "Regantes de Chuquisaca y Tarija conforman bloque de defensa de la cuenca del Pilcomayo",
-                            "url": "https://correodelsur.com/local/regantes-chuquisaca-tarija-bloque-defensa-pilcomayo",
-                            "content": (
-                                "Productores hortícolas y frutícolas de los valles chuquisaqueños advirtieron que la contaminación "
-                                "minera pone en riesgo la seguridad alimentaria y la certificación de sus productos."
-                            ),
-                        },
-                        {
-                            "source_slug": "radio-aclo",
-                            "title": "Capitanías Weenhayek en el Gran Chaco piden estudios de metales pesados en el sábalo del Pilcomayo",
-                            "url": "https://aclo.org.bo/chaco-capitanias-weenhayek-estudios-metales-pesados-pilcomayo",
-                            "content": (
-                                "Familias pesqueras del pueblo Weenhayek en Villa Montes señalaron que su subsistencia depende "
-                                "directamente de la salud ecológica del río Pilcomayo."
-                            ),
-                        },
-                    ],
-                },
-            ],
-        },
-        {
-            "title": "Desabastecimiento de diésel, filas en surtidores e impacto en el transporte y producción de alimentos",
-            "slug": "desabastecimiento-diesel-filas-surtidores-impacto-alimentos",
-            "status": "active",
-            "category": "Economía y Abastecimiento",
-            "primary_department": "Nacional",
-            "departments_affected": ["Santa Cruz", "La Paz", "Cochabamba", "Oruro", "Tarija"],
-            "key_entities": ["YPFB", "ANH", "EMAPA", "ABC"],
-            "current_summary": (
-                "La irregularidad en la provisión de diésel y gasolina genera filas recurrentes en estaciones de servicio "
-                "del eje central y provincias, afectando la logística del transporte pesado, el agro y los costos de la canasta familiar."
-            ),
-            "events": [
-                {
-                    "days_ago": 21,
-                    "title": "Productores agrícolas y transporte interdepartamental reportan escasez de diésel en provincias",
-                    "summary": (
-                        "Mientras en las capitales se prioriza el despacho, cooperativas agrícolas y sindicatos provinciales "
-                        "denuncian que los surtidores rurales reciben cupos reducidos."
+                        "A través de Radio Kawsachun Coca, dirigentes de las Seis Federaciones denunciaron operativos sin "
+                        "coordinación local, mientras el Ministerio de Gobierno ratificó la presencia estatal en el Chapare."
                     ),
                     "department": "Cochabamba",
                     "articles": [
                         {
-                            "source_slug": "erbol",
-                            "title": "Municipios productores de papa y hortalizas en Cochabamba y La Paz alertan falta de diésel para tractores",
-                            "url": "https://erbol.com.bo/economia/municipios-productores-alertan-falta-diesel-tractores",
+                            "source_slug": "kawsachun-coca",
+                            "title": "Seis Federaciones del Trópico se declaran en vigilia permanente ante incursiones policiales",
+                            "url": "https://kawsachuncoca.com/seis-federaciones-tropico-vigilia-incursiones-policiales",
                             "content": (
-                                "Alcaldes y centrales agrarias de provincias del valle alto y altiplano reportaron que los "
-                                "productores deben trasladarse decenas de kilómetros con bidones para conseguir combustible."
+                                "Un ampliado de emergencia realizado en Lauca Ñ rechazó lo que califican como hostigamiento "
+                                "a los productores de hoja de coca de Villa Tunari, Shinahota y Entre Ríos."
                             ),
                         },
                         {
-                            "source_slug": "brujula-digital",
-                            "title": "Importación de combustibles presiona las reservas de divisas y genera cuellos de botella logísticos",
-                            "url": "https://www.brujuladigital.net/economia/importacion-combustibles-divisas-logistica",
+                            "source_slug": "opinion",
+                            "title": "Ministerio de Gobierno afirma que la Policía garantizará el libre tránsito y control en el Chapare",
+                            "url": "https://www.opinion.com.bo/articulo/policial/policia-garantizara-control-chapare",
                             "content": (
-                                "Economistas advierten que los retrasos en pagos a proveedores internacionales provocan baches "
-                                "intermitentes en la cadena de distribución interna de YPFB."
-                            ),
-                        },
-                        {
-                            "source_slug": "la-razon",
-                            "title": "YPFB anuncia incremento en despachos de diésel y controles conjuntos con la ANH contra el desvío",
-                            "url": "https://www.la-razon.com/economia/ypfb-incremento-despachos-diesel-controles-anh",
-                            "content": (
-                                "La estatal petrolera informó que reforzó la recepción en plantas de almacenaje de Senkata, "
-                                "Palmasola y Gualberto Villarroel para normalizar el abastecimiento."
-                            ),
-                        },
-                    ],
-                },
-                {
-                    "days_ago": 1,
-                    "title": "Mercados populares registran incremento en fletes de traslado de alimentos desde zonas productoras",
-                    "summary": (
-                        "Comerciantes minoristas y transportistas señalan que el tiempo de espera en surtidores y la escasez "
-                        "de repuestos encarecen el transporte de verduras, granos y tubérculos hacia las ciudades."
-                    ),
-                    "department": "La Paz",
-                    "articles": [
-                        {
-                            "source_slug": "guardiana",
-                            "title": "Radiografía del costo del transporte: cómo las filas por diésel impactan el precio de los alimentos",
-                            "url": "https://guardiana.com.bo/economia/radiografia-costo-transporte-filas-diesel-alimentos",
-                            "content": (
-                                "Un recorrido por centros de abasto en El Alto, Cochabamba y Santa Cruz muestra que los camiones "
-                                "pierden entre uno y dos días de viaje haciendo fila por combustible."
-                            ),
-                        },
-                        {
-                            "source_slug": "el-deber",
-                            "title": "Sectores productivos piden garantizar diésel continuo para no comprometer la campaña agrícola",
-                            "url": "https://eldeber.com.bo/economia/sectores-productivos-garantizar-diesel-campana-agricola",
-                            "content": (
-                                "Representantes del agro advirtieron que cada semana de retraso en la preparación de suelos "
-                                "reduce el rendimiento de granos estratégicos para el mercado interno."
-                            ),
-                        },
-                        {
-                            "source_slug": "rimay-pampa",
-                            "title": "Comunidades del altiplano denuncian sobreprecio de combustibles revendidos en ferias rurales",
-                            "url": "https://rimaypampa.com/comunidades-altiplano-sobreprecio-combustibles-ferias",
-                            "content": (
-                                "Ante la ausencia de estaciones de servicio en municipios alejados, transportistas rurales "
-                                "pagan hasta el doble del precio oficial por litro de diésel."
+                                "Autoridades policiales informaron que las unidades operativas continuarán realizando tareas de "
+                                "interdicción y seguridad vial en la carretera Cochabamba-Santa Cruz."
                             ),
                         },
                     ],
@@ -496,72 +272,169 @@ def seed_database(db: Session) -> None:
             ],
         },
         {
-            "title": "Sequía y contaminación urbana-minera en los lagos Uru Uru y Poopó afectan a comunidades originarias",
-            "slug": "sequia-contaminacion-lagos-uru-uru-poopo-oruro",
-            "status": "monitoring",
-            "category": "Medio Ambiente y Territorio",
-            "primary_department": "Oruro",
-            "departments_affected": ["Oruro"],
-            "key_entities": ["Lago Uru Uru", "Lago Poopó", "COMIBOL", "SENAMHI"],
+            "title": "Salvoconductos, solicitudes de asilo en México y controversia por salida del país de investigados",
+            "slug": "salvoconductos-asilo-mexico-salida-investigados-beller-garcia-linera",
+            "status": "active",
+            "category": "Política y Gestión Pública",
+            "primary_department": "La Paz",
+            "departments_affected": ["La Paz", "Santa Cruz"],
+            "key_entities": ["Cancillería", "Asamblea Legislativa", "Caso Hotel Las Américas", "Fiscalía"],
             "current_summary": (
-                "Las comunidades originarias Urus de Oruro enfrentan el retroceso histórico del espejo de agua en los lagos "
-                "Poopó y Uru Uru, agravado por el desvío de caudales del río Desaguadero, pasivos ambientales mineros y residuos sólidos urbanos."
+                "La salida del país de Nadia Beller con salvoconducto hacia México y los reportes migratorios sobre el exvicepresidente "
+                "Álvaro García Linera dentro del caso Hotel Las Américas desataron cuestionamientos legislativos, pedidos de informe "
+                "a Migración y desmentidos sobre gestiones diplomáticas."
             ),
             "events": [
                 {
-                    "days_ago": 38,
-                    "title": "Pueblos Urus denuncian mortandad de aves y acumulación de plásticos y aguas ácidas en el lago Uru Uru",
+                    "days_ago": 5,
+                    "title": "Debate político y judicial por solicitudes de asilo diplomático y controles migratorios",
                     "summary": (
-                        "Medios de Oruro y portales independientes visibilizaron el deterioro del canal Rosso y el ingreso de "
-                        "aguas servidas y drenaje ácido de mina hacia el humedal Ramsar."
+                        "Parlamentarios pidieron a la Cancillería y a la Dirección de Migración transparentar la lista de "
+                        "personas con procesos pendientes que tramitan salvoconductos o salieron por pasos fronterizos."
                     ),
-                    "department": "Oruro",
+                    "department": "La Paz",
                     "articles": [
                         {
-                            "source_slug": "la-patria-oruro",
-                            "title": "Comunidades de Llapallapani y Puñaca Tinta María piden declaratoria de emergencia por sequía en el Poopó",
-                            "url": "https://lapatria.bo/oruro/llapallapani-punaca-emergencia-sequia-poopo",
+                            "source_slug": "vision-360",
+                            "title": "Oposición y oficialismo chocan por el manejo de salvoconductos y alertas migratorias en casos sensibles",
+                            "url": "https://www.vision360.bo/noticias/debate-salvoconductos-alertas-migratorias-casos",
                             "content": (
-                                "Autoridades originarias de la nación Uru señalaron que la falta de agua obligó a más del 40% "
-                                "de los jóvenes de sus comunidades a migrar temporalmente por la desaparición de la pesca."
+                                "Analistas y legisladores cuestionaron la falta de coordinación oportuna entre juzgados, "
+                                "Fiscalía y Migración para ejecutar arraigos en investigaciones de alto perfil."
                             ),
                         },
                         {
-                            "source_slug": "muy-waso",
-                            "title": "La resistencia de las mujeres Urus: tejer memoria y vida frente a un lago que se seca",
-                            "url": "https://muywaso.com/resistencia-mujeres-urus-lago-poopo-oruro",
+                            "source_slug": "urgente-bo",
+                            "title": "Piden petición de informe oral a Cancillería y Ministerio de Gobierno sobre salidas hacia México",
+                            "url": "https://www.urgente.bo/noticias/piden-informe-oral-cancilleria-migracion-salidas-mexico",
                             "content": (
-                                "Crónica desde las comunidades Urus en Oruro sobre cómo las mujeres sostienen la identidad cultural "
-                                "y la economía comunitaria mediante la artesanía en totora pese a la crisis ecológica."
+                                "En la Asamblea Legislativa Plurinacional se formalizaron cuestionarios escritos y orales "
+                                "para esclarecer las actuaciones diplomáticas y de control en aeropuertos."
                             ),
                         },
                     ],
                 },
+            ],
+        },
+        {
+            "title": "Control de combustibles y operativos contra el desvío y contrabando en fronteras y surtidores",
+            "slug": "control-combustibles-operativos-desvio-contrabando-anh-ypfb-aduana",
+            "status": "active",
+            "category": "Economía y Abastecimiento",
+            "primary_department": "Tarija",
+            "departments_affected": ["Tarija", "Chuquisaca", "Oruro", "Santa Cruz"],
+            "key_entities": ["ANH", "YPFB", "Aduana Nacional"],
+            "current_summary": (
+                "La Agencia Nacional de Hidrocarburos (ANH), la Policía y la Aduana intensificaron operativos en Yacuiba, Sucre, "
+                "Oruro y pasos fronterizos ante el desvío ilegal de gasolina y diésel subvencionado y el contrabando."
+            ),
+            "events": [
                 {
-                    "days_ago": 9,
-                    "title": "Auditoría ciudadana advierte retraso en plantas de tratamiento y remediación de pasivos mineros en Oruro",
+                    "days_ago": 8,
+                    "title": "Refuerzan controles en plantas de YPFB y carreteras del sur por desvío de carburantes",
                     "summary": (
-                        "Organizaciones socioambientales de Oruro presentaron un balance que revela una ejecución menor al 30% "
-                        "en los proyectos comprometidos para recuperar la subcuenca Huanuni-Uru Uru."
+                        "Medios regionales del Gran Chaco, Tarija y Oruro reportaron intercepciones de cisternas y camiones "
+                        "que transportaban combustible sin hoja de ruta autorizada."
                     ),
-                    "department": "Oruro",
+                    "department": "Tarija",
                     "articles": [
                         {
-                            "source_slug": "sumando-voces",
-                            "title": "Colectivos de Oruro exigen cumplimiento de sentencia agroambiental para salvar el lago Uru Uru",
-                            "url": "https://sumandovoces.com.bo/colectivos-oruro-sentencia-agroambiental-lago-uru-uru",
+                            "source_slug": "yacuiba-noticias",
+                            "title": "Investigan presuntas irregularidades en el control de salida de combustibles en planta de Yacuiba",
+                            "url": "https://yacuibanoticias.com/investigan-control-salida-combustibles-planta-yacuiba",
                             "content": (
-                                "El monitoreo ciudadano verificó que los canales que desembocan en el lago Uru Uru continúan "
-                                "arrastrando residuos sólidos y efluentes sin tratamiento adecuado."
+                                "Vecinos y transportistas del Gran Chaco exigieron auditoría al despacho de carburantes "
+                                "en la zona fronteriza con Argentina."
                             ),
                         },
                         {
-                            "source_slug": "erbol",
-                            "title": "Productores de quinua y camélidos del sur de Oruro reportan salinización de pozos de agua",
-                            "url": "https://erbol.com.bo/oruro/productores-quinua-camelidos-salinizacion-pozos-agua",
+                            "source_slug": "la-patria-oruro",
+                            "title": "Operativos conjuntos en rutas de Oruro y Chuquisaca comisaron miles de litros de combustible",
+                            "url": "https://lapatria.bo/nacional/operativos-rutas-oruro-chuquisaca-comisaron-combustible",
                             "content": (
-                                "Comunarios de municipios cercanos al lago Poopó denunciaron que el déficit hídrico redujo "
-                                "drásticamente los bofedales para el ganado camélido."
+                                "La ANH informó que los combustibles incautados eran acopiados en bidones y tanques adaptados "
+                                "para su reventa ilegal."
+                            ),
+                        },
+                    ],
+                },
+            ],
+        },
+        {
+            "title": "Denuncias por presunta red de venta de ítems y cobros irregulares en DGAC y NAABOL (Caso Cerimedo)",
+            "slug": "denuncias-venta-items-cobros-irregulares-dgac-naabol-cerimedo",
+            "status": "active",
+            "category": "Justicia y Seguridad Ciudadana",
+            "primary_department": "La Paz",
+            "departments_affected": ["La Paz", "Pando", "Santa Cruz"],
+            "key_entities": ["DGAC", "NAABOL", "Asamblea Legislativa", "Fiscalía"],
+            "current_summary": (
+                "Investigaciones periodísticas difundidas por medios digitales revelaron denuncias sobre una presunta red de "
+                "intermediación y venta de cargos en entidades del sector aeronáutico (DGAC y NAABOL), motivando pedidos de "
+                "investigación en el Legislativo."
+            ),
+            "events": [
+                {
+                    "days_ago": 6,
+                    "title": "Portales de investigación destapan denuncias sobre direccionamiento de cargos en DGAC y NAABOL",
+                    "summary": (
+                        "Reportes de prensa independiente señalaron a exfuncionarios y operadores políticos por presuntos "
+                        "cobros para designaciones en aeropuertos y aeronáutica civil."
+                    ),
+                    "department": "La Paz",
+                    "articles": [
+                        {
+                            "source_slug": "cabildeo-digital",
+                            "title": "Denuncian red de tráfico de influencias y cobros por cargos técnicos en el sector aeronáutico",
+                            "url": "https://www.cabildeodigital.com/denuncian-trafico-influencias-cargos-sector-aeronautico",
+                            "content": (
+                                "Testimonios y capturas presentadas ante fiscalizadores apuntan a intermediarios que operaban "
+                                "en la asignación de puestos en NAABOL y la DGAC."
+                            ),
+                        },
+                    ],
+                },
+            ],
+        },
+        {
+            "title": "Bolivia en la COP31, financiamiento internacional para bosques y crisis ambiental en cuencas regionales",
+            "slug": "bolivia-cop31-financiamiento-bosques-crisis-ambiental-cuencas",
+            "status": "active",
+            "category": "Medio Ambiente y Territorio",
+            "primary_department": "Nacional",
+            "departments_affected": ["Santa Cruz", "Tarija", "Cochabamba", "Beni"],
+            "key_entities": ["COP31", "ABT", "SERNAP", "Fiscalía"],
+            "current_summary": (
+                "Mientras Bolivia gestiona en la COP31 un paquete de 250 millones de euros y acuerdos con Brasil tras reportar "
+                "una reducción de hectáreas quemadas, en los departamentos persisten procesos por sequía, descargas de aguas "
+                "servidas al río Guadalquivir en Tarija y demandas de restauración ambiental."
+            ),
+            "events": [
+                {
+                    "days_ago": 9,
+                    "title": "Regiones reclaman presupuesto para plantas de tratamiento de agua y prevención de incendios y sequía",
+                    "summary": (
+                        "En Tarija, Cochabamba y la Chiquitanía, colectivos y municipios advirtieron sobre el colapso de "
+                        "lagunas de oxidación y el déficit hídrico en provincias."
+                    ),
+                    "department": "Tarija",
+                    "articles": [
+                        {
+                            "source_slug": "la-voz-de-tarija",
+                            "title": "Vecinos y ambientalistas de Tarija exigen solución definitiva a la contaminación del río Guadalquivir",
+                            "url": "https://lavozdetarija.com/vecinos-tarija-solucion-contaminacion-rio-guadalquivir",
+                            "content": (
+                                "El colapso de los sistemas de tratamiento en San Lorenzo y Cercado continúa provocando "
+                                "descargas de aguas residuales sin tratar hacia la cuenca del Guadalquivir."
+                            ),
+                        },
+                        {
+                            "source_slug": "la-region",
+                            "title": "Especialistas piden que los fondos climáticos internacionales lleguen directamente a municipios y guardaparques",
+                            "url": "https://www.laregion.bo/fondos-climaticos-municipios-guardaparques-bolivia",
+                            "content": (
+                                "Investigadores ambientales remarcaron que la reducción de incendios requiere equipamiento "
+                                "permanente en áreas protegidas y control sobre quemas ilegales."
                             ),
                         },
                     ],
@@ -593,7 +466,9 @@ def seed_database(db: Session) -> None:
 
         for ev_data in th_data["events"]:
             ev_dt = now - timedelta(days=ev_data["days_ago"])
-            ev_vec = compute_embedding(f"{ev_data['title']} {ev_data['summary']} {ev_data['department']}")
+            ev_vec = compute_embedding(
+                f"{ev_data['title']} {ev_data['summary']} {' '.join(th_data['key_entities'])} {ev_data['department']}"
+            )
             event = StoryEvent(
                 thread_id=thread.id,
                 title=ev_data["title"],
@@ -614,7 +489,9 @@ def seed_database(db: Session) -> None:
                     continue
                 art_dt = ev_dt + timedelta(hours=idx * 2)
                 art_summary = generate_summary(art_data["title"], art_data["content"])
-                art_vec = compute_embedding(f"{art_data['title']} {art_summary} {ev_data['department']}")
+                art_vec = compute_embedding(
+                    f"{art_data['title']} {art_summary} {' '.join(th_data['key_entities'])} {ev_data['department']}"
+                )
                 article = Article(
                     source_id=src.id,
                     event_id=event.id,
@@ -631,7 +508,7 @@ def seed_database(db: Session) -> None:
                 )
                 db.add(article)
                 src.total_articles_collected = (src.total_articles_collected or 0) + 1
-                src.last_scraped_at = now - timedelta(hours=2)
+                src.last_scraped_at = now - timedelta(hours=3)
                 total_articles_seeded += 1
 
             db.flush()
@@ -641,15 +518,19 @@ def seed_database(db: Session) -> None:
         recompute_thread_metrics(db, thread)
 
     initial_run = ScrapeRun(
-        started_at=now - timedelta(hours=2, minutes=4),
-        finished_at=now - timedelta(hours=2),
-        trigger="scheduled",
+        started_at=now - timedelta(hours=3, minutes=2),
+        finished_at=now - timedelta(hours=3),
+        trigger="seed",
         status="completed",
         sources_scanned=len(existing_sources),
         new_articles=total_articles_seeded,
         new_events=total_events_seeded,
         updated_threads=len(threads_blueprint),
-        details={"note": "Escaneo inicial matutino de fuentes nacionales, regionales, comunitarias y alternativas."},
+        details={"note": "Base histórica cargada."},
     )
     db.add(initial_run)
     db.commit()
+
+    # 2. Ejecutar escaneo real en vivo de las 42 fuentes bolivianas para poblar con las noticias reales del día
+    if run_live_after_seed:
+        run_daily_scan(db, trigger="scheduled", try_live_network=True, max_per_source=4)
