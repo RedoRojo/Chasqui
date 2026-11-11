@@ -1,0 +1,50 @@
+name: Chasqui CI
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+
+jobs:
+  api-check:
+    name: Backend (FastAPI & Scraper)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: apps/api
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: "pip"
+          cache-dependency-path: apps/api/requirements.txt
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+      - name: Compile & smoke-test models and NLP engine
+        run: |
+          python -m py_compile app/*.py app/intelligence/*.py app/scraper/*.py
+          python -c "from app.database import init_db, SessionLocal; from app.seed import seed_database; init_db(); db = SessionLocal(); seed_database(db, run_live_after_seed=False); db.close()"
+
+  web-check:
+    name: Frontend (Next.js & TypeScript)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: apps/web
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: "npm"
+          cache-dependency-path: apps/web/package-lock.json
+      - name: Install dependencies
+        run: npm ci
+      - name: TypeScript typecheck
+        run: npx tsc --noEmit
+      - name: Build Next.js application
+        run: npm run build

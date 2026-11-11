@@ -1,0 +1,14 @@
+{
+  "name": "chasqui-monorepo",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Monorepo de Chasqui: Centralización de noticias de Bolivia y seguimiento longitudinal de problemáticas",
+  "scripts": {
+    "dev:web": "npm --prefix apps/web run dev",
+    "build:web": "npm --prefix apps/web run build",
+    "check:web": "npm --prefix apps/web exec -- tsc --noEmit",
+    "dev:api": "cd apps/api && .venv/bin/uvicorn app.main:app --reload --host 0.0.0.0 --port 8000",
+    "scan": "cd apps/api && .venv/bin/python -m app.cli scan",
+    "status": "cd apps/api && .venv/bin/python -m app.cli status"
+  }
+}
