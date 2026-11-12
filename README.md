@@ -9,7 +9,7 @@
 
 **Chasqui** (named after the agile messengers of the Andean road system who connected distant regions) is a full-stack news intelligence and longitudinal tracking platform built to solve **media fragmentation, regional underrepresentation, and short-term news amnesia in Bolivia**.
 
-Instead of presenting an ephemeral stream of isolated headlines, Chasqui ingests articles daily from **46 verified Bolivian news sources**—spanning mainstream television/newspapers, independent digital journalism, community radio networks, and regional press across all **9 departments**—and uses a **two-stage semantic clustering engine** to chain daily reports into evolving chronological timelines (`Articles` → `Events` → `Story Threads`).
+Instead of presenting an ephemeral stream of isolated headlines, Chasqui ingests articles and social dispatches daily from **52 verified Bolivian news & broadcast sources**—spanning mainstream television/newspapers, independent digital journalism, community radio networks, regional press, and social video broadcast channels (`YouTube`, `Telegram`) across all **9 departments**—and uses a **two-stage semantic clustering engine** to chain daily reports into evolving chronological timelines (`Articles` → `Events` → `Story Threads`).
 
 ---
 
@@ -39,8 +39,8 @@ In Bolivia, the information ecosystem suffers from three structural gaps:
   Combines Spanish morphological stem normalization, domain-specific concept vectors, feature hashing of unigrams/bigrams, cosine similarity, named-entity overlap, and geographic weighting to automatically assign incoming articles to active events and link new events to historical threads.
 - **Media Blindspot Detection & Coverage Asymmetry Metrics:**
   Classifies every source into four editorial tiers (`mainstream`, `alternative`, `community`, `regional`) and computes per-event and per-thread coverage ratios, surfacing **"Blindspot Events"** (*Puntos Ciegos*) that have $0\%$ coverage in traditional mass media.
-- **High-Concurrency Multi-Strategy Scraper (`httpx` + `ThreadPoolExecutor` + `BeautifulSoup` + `feedparser`):**
-  Scans **46 real Bolivian news portals** in parallel (~6 seconds per full national sweep), supporting both RSS/Atom syndication and heuristic DOM extraction with noise/navigation filtering and automated daily scheduling (`APScheduler` at `06:00 BOT`).
+- **High-Concurrency Multi-Strategy & Social Media Scraper (`httpx` + `ThreadPoolExecutor` + `BeautifulSoup` + `feedparser`):**
+  Scans **52 real Bolivian news portals and social broadcast channels** in parallel (~6 seconds per full national sweep), supporting RSS/Atom syndication, heuristic DOM extraction, native **YouTube Channel Atom feeds** (`scrape_strategy="youtube"`), **Telegram public channels** (`scrape_strategy="telegram"`), **RSS-Bridge** integration, and single-URL social post extraction (`YouTube`, `TikTok`, `X/Twitter`, `Telegram`, `Facebook`) with automated daily scheduling (`APScheduler` at `06:00 BOT`).
 - **Performance-First & Accessible Editorial Web UI (`Next.js 15` + `React 19` + `Tailwind CSS v4`):**
   Implements `content-visibility: auto` paired with `contain-intrinsic-size` for zero-CLS off-screen feed rendering, native `<details>`/`<summary>` disclosures for Find-in-Page searchable source attributions, semantic `<search>` landmarks, and parallelized API data fetching.
 
@@ -249,8 +249,10 @@ make check
 | `GET` | `/api/threads/{slug}` | Full chronological timeline of a story thread with all nested events and source articles |
 | `GET` | `/api/events` | List clustered events filtered by department, category, or `blindspot_only=true` |
 | `GET` | `/api/articles` | Historical archive search by semantic/keyword query, date range, department, and media tier |
-| `GET` / `POST` | `/api/sources` | List all 46 monitored Bolivian sources or register a new media outlet |
-| `POST` | `/api/scrape/run` | Trigger an immediate concurrent scrape across all active sources |
+| `GET` / `POST` | `/api/sources` | List all 52 monitored Bolivian web & social sources or register a new outlet/channel |
+| `POST` | `/api/scrape/run` | Trigger an immediate concurrent scrape across all active web, radio, and social sources |
+| `POST` | `/api/articles/extract-url` | Extract headline, text/caption, author, and platform from a YouTube, TikTok, X, Telegram, Facebook, or web URL |
+| `POST` | `/api/articles/ingest-url` | One-click extract a social media post/video URL and automatically cluster it into a `StoryEvent` and `StoryThread` |
 | `POST` | `/api/articles/ingest` | Ingest a custom article and return its automatically assigned `StoryEvent` and `StoryThread` |
 
 ---

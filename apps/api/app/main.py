@@ -18,13 +18,23 @@ from app.schemas import (
     ArticleOut,
     DashboardOverviewOut,
     ScrapeRunOut,
+    SocialUrlExtractRequest,
+    SocialUrlExtractResponse,
+    SocialUrlIngestRequest,
     SourceCreate,
     SourceOut,
     StoryEventOut,
     StoryThreadDetailOut,
     StoryThreadOut,
 )
-from app.scraper.engine import run_daily_scan
+from app.scraper.engine import (
+    HEADERS,
+    detect_social_platform,
+    extract_social_or_web_post,
+    resolve_youtube_feed_url,
+    run_daily_scan,
+)
+import httpx
 from app.seed import seed_database
 
 scheduler = BackgroundScheduler(timezone="America/La_Paz")
@@ -324,26 +334,43 @@ def create_source(payload: SourceCreate, db: Session = Depends(get_db)) -> Sourc
     existing = db.query(Source).filter(or_(Source.slug == slug, Source.url == payload.url)).first()
     if existing:
         raise HTTPException(status_code=400, detail="A source with that name or URL already exists.")
-    src = Source(
+
+    clean_url = payload.url.strip()
+    rss_url = payload.rss_url.strip() if payload.rss_url else None
+    strategy = (payload.scrape_strategy or "").strip().lower()
+    detected_platform = detect_social_platform(clean_url)
+
+    if detected_platform in ("youtube", "telegram"):
+        strategy = detected_platform
+    elif not strategy or strategy == "auto":
+        strategy = "rss" if rss_url else "html"
+
+    temp_src = Source(
         name=payload.name.strip(),
         slug=slug,
-        url=payload.url.strip(),
-        rss_url=payload.rss_url.strip() if payload.rss_url else None,
+        url=clean_url,
+        rss_url=rss_url,
         tier=payload.tier,
         department=payload.department,
-        scrape_strategy=payload.scrape_strategy,
+        scrape_strategy=strategy,
         description=payload.description,
         is_active=True,
     )
-    db.add(src)
+    if strategy == "youtube" and not temp_src.rss_url:
+        with httpx.Client(headers=HEADERS, follow_redirects=True, timeout=8.0) as client:
+            resolved_feed = resolve_youtube_feed_url(temp_src, client)
+            if resolved_feed:
+                temp_src.rss_url = resolved_feed
+
+    db.add(temp_src)
     db.commit()
-    db.refresh(src)
-    return SourceOut.model_validate(src)
+    db.refresh(temp_src)
+    return SourceOut.model_validate(temp_src)
 
 
 @app.post("/api/scrape/run", response_model=ScrapeRunOut)
 def trigger_scrape(
-    live_network: bool = Query(default=True, description="Run live network scan across Bolivian RSS/HTML portals"),
+    live_network: bool = Query(default=True, description="Run live network scan across Bolivian RSS/HTML/Social sources"),
     db: Session = Depends(get_db),
 ) -> ScrapeRunOut:
     run = run_daily_scan(db, trigger="manual", try_live_network=live_network)
@@ -354,6 +381,89 @@ def trigger_scrape(
 def list_scrape_runs(limit: int = Query(default=10, ge=1, le=50), db: Session = Depends(get_db)) -> list[ScrapeRunOut]:
     runs = db.query(ScrapeRun).order_by(ScrapeRun.started_at.desc()).limit(limit).all()
     return [ScrapeRunOut.model_validate(r) for r in runs]
+
+
+@app.post("/api/articles/extract-url", response_model=SocialUrlExtractResponse)
+def extract_article_from_url(payload: SocialUrlExtractRequest) -> SocialUrlExtractResponse:
+    try:
+        extracted = extract_social_or_web_post(payload.url)
+        return SocialUrlExtractResponse(**extracted)
+    except Exception as exc:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Could not extract content from URL: {str(exc)}",
+        ) from exc
+
+
+@app.post("/api/articles/ingest-url")
+def ingest_article_from_url(payload: SocialUrlIngestRequest, db: Session = Depends(get_db)) -> dict[str, Any]:
+    try:
+        extracted = extract_social_or_web_post(payload.url)
+    except Exception as exc:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Could not extract content from URL: {str(exc)}",
+        ) from exc
+
+    source: Source | None = None
+    if payload.source_slug and payload.source_slug != "auto":
+        source = db.query(Source).filter(Source.slug == payload.source_slug).first()
+
+    if not source:
+        platform = extracted["platform"]
+        author = extracted["author_or_outlet"]
+        candidate_slug = slugify(f"{author}-{platform}")
+        source = db.query(Source).filter(Source.slug == candidate_slug).first()
+        if not source:
+            # Check if any existing source name matches the author
+            source = (
+                db.query(Source)
+                .filter(Source.name.ilike(f"%{author[:20]}%"))
+                .first()
+            )
+        if not source:
+            strategy = platform if platform in ("youtube", "telegram") else "html"
+            source = Source(
+                name=f"{author} ({platform.capitalize()})",
+                slug=candidate_slug,
+                url=extracted["url"],
+                rss_url=None,
+                tier=payload.tier or "alternative",
+                department=payload.department or "National",
+                scrape_strategy=strategy,
+                description=f"Automatically registered {platform.capitalize()} source ({author}).",
+                is_active=True,
+            )
+            db.add(source)
+            db.flush()
+
+    article, created_event, updated_thread = ingest_and_cluster_article(
+        db=db,
+        source=source,
+        title=extracted["title"],
+        url=extracted["url"],
+        content=extracted["content"],
+        published_at=extracted["published_at"],
+        department_override=payload.department,
+    )
+    db.commit()
+    db.refresh(article)
+
+    event = db.query(StoryEvent).filter(StoryEvent.id == article.event_id).first() if article.event_id else None
+    thread = db.query(StoryThread).filter(StoryThread.id == event.thread_id).first() if event else None
+
+    return {
+        "article": ArticleOut.model_validate(article),
+        "platform": extracted["platform"],
+        "author_or_outlet": extracted["author_or_outlet"],
+        "extracted_title": extracted["title"],
+        "created_new_event": created_event,
+        "updated_or_created_thread": updated_thread,
+        "event_id": event.id if event else None,
+        "event_title": event.title if event else None,
+        "thread_slug": thread.slug if thread else None,
+        "thread_title": thread.title if thread else None,
+    }
 
 
 @app.post("/api/articles/ingest")

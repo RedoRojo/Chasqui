@@ -130,3 +130,10 @@ export const TIER_LABELS: Record<SourceTier, string> = {
   regional: "Regional / Departmental",
   mainstream: "Mainstream / Legacy",
 };
+
+export const SCRAPE_STRATEGY_LABELS: Record<string, string> = {
+  rss: "RSS / XML Feed",
+  html: "Web Portal (HTML)",
+  youtube: "YouTube Broadcast",
+  telegram: "Telegram Channel",
+};

@@ -120,6 +120,26 @@ class ArticleIngestRequest(BaseModel):
     category: str | None = None
 
 
+class SocialUrlExtractRequest(BaseModel):
+    url: str
+
+
+class SocialUrlExtractResponse(BaseModel):
+    url: str
+    platform: str
+    author_or_outlet: str
+    title: str
+    content: str
+    published_at: datetime
+
+
+class SocialUrlIngestRequest(BaseModel):
+    url: str
+    source_slug: str | None = None
+    tier: str = Field(default="alternative", description="mainstream | alternative | regional | community")
+    department: str | None = None
+
+
 class DashboardOverviewOut(BaseModel):
     total_threads: int
     active_threads: int

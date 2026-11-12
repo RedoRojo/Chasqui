@@ -17,5 +17,12 @@ services:
       timeout: 5s
       retries: 5
 
+  rss-bridge:
+    image: rssbridge/rss-bridge:latest
+    container_name: chasqui-rss-bridge
+    restart: unless-stopped
+    ports:
+      - "${RSS_BRIDGE_PORT:-3005}:80"
+
 volumes:
   chasqui_pgdata:
